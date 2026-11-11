@@ -32,6 +32,12 @@ add_executable(NASA
         Setting.cpp
         Setting.h
         IState.h
+        Objects3D.cpp
+        Objects3D.h
+        UI2DAll.cpp
+        UI2DAll.h
+        InputManager.cpp
+        InputManager.h
 )
 
 target_link_libraries(NASA PRIVATE raylib)

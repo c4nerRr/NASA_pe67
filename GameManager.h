@@ -4,13 +4,41 @@
 
 #ifndef NASA_GAMEMANAGER_H
 #define NASA_GAMEMANAGER_H
+#include <map>
+#include <memory>
 
+#include "IState.h"
+
+enum class GameState {Boot, Menu, Hub, Game1, Game2, Game3, Game4, Pause};
 
 class GameManager {
 
-    static GameManager* instance;
     GameManager();
     ~GameManager();
+
+    GameState _currentState = GameState::Boot;
+    bool _quitRequested = false;
+
+    std::map<GameState, std::unique_ptr<IState>> _states;
+
+public:
+    static GameManager& Instanse();
+
+    GameManager(const GameManager&) = delete;
+    GameManager& operator=(const GameManager&) = delete;
+
+    void ChangeState(GameState newState);
+    void Update(float dt);
+
+    [[nodiscard]] GameState GetCurrentState() const;
+
+    void RequestQuit();
+    [[nodiscard]] bool ShouldQuit() const;
+
+    void RegisterState(GameState id, std::unique_ptr<IState> state);
+    void Draw() const;
+    void ClearStates();
+
 };
 
 
