@@ -40,6 +40,10 @@ add_executable(NASA
         InputManager.h
         ProfilerTIME.cpp
         ProfilerTIME.h
+        HubPortal.cpp
+        HubPortal.h
+        Hub.cpp
+        Hub.h
 )
 
 target_link_libraries(NASA PRIVATE raylib)

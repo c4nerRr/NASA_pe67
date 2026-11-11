@@ -9,6 +9,7 @@
 #include "GameManager.h"
 #include "MainMenu.h"
 #include "raylib.h"
+#include "Hub.h"
 
 namespace {
     constexpr float maxDeltaTime = 0.05f;
@@ -27,6 +28,7 @@ void Init::Run() {
     auto& game = GameManager::Instanse();
 
     game.RegisterState(GameState::Menu, std::make_unique<MainMenu>());
+    game.RegisterState(GameState::Hub, std::make_unique<Hub>());
 
     //MainMenu
     game.ChangeState(GameState::Menu);
