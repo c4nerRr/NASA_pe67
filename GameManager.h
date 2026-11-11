@@ -8,6 +8,9 @@
 
 class GameManager {
 
+    static GameManager* instance;
+    GameManager();
+    ~GameManager();
 };
 
 
