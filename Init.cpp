@@ -5,7 +5,9 @@
 #include "Init.h"
 
 #include <algorithm>
+#include <filesystem>
 
+#include "GameAssets.h"
 #include "GameManager.h"
 #include "MainMenu.h"
 #include "raylib.h"
@@ -16,7 +18,6 @@ namespace {
 }
 
 Init::Init() = default;
-
 Init::~Init() = default;
 
 
@@ -27,39 +28,55 @@ void Init::Run() {
 
     auto& game = GameManager::Instanse();
 
-    game.RegisterState(GameState::Menu, std::make_unique<MainMenu>());
-    game.RegisterState(GameState::Hub, std::make_unique<Hub>());
+    {
+        try {
+            const std::filesystem::path root = GetApplicationDirectory();
 
-    //MainMenu
-    game.ChangeState(GameState::Menu);
+            const Model& moon = _assets.Load( (root / _config.moonPath).string(), _config.emissionAsAlbedo);
+            std::vector<PortalModel> portals;
 
-    while (!WindowShouldClose() && !game.ShouldQuit()) {
-        _profiler.BeginFrame();
-        ProfilerTIME::ScopeMarker fullFrame("FullFrame", _profiler);
+            for (const auto&[path, target] : _config.portals) {
+                const Model& model = _assets.Load((root / path).string(),_config.emissionAsAlbedo);
+                portals.push_back({&model, target});
+            }
+            game.RegisterState(GameState::Menu, std::make_unique<MainMenu>());
+            game.RegisterState(GameState::Hub, std::make_unique<Hub>(moon, portals, _config));
 
-        const float dt = std::min(GetFrameTime(), maxDeltaTime);
+            game.ChangeState(GameState::Menu);
 
-        {
-            ProfilerTIME::ScopeMarker upd("Update", _profiler);
-            game.Update(dt);
+            while (!WindowShouldClose() && !game.ShouldQuit()) {
+                _profiler.BeginFrame();
+                ProfilerTIME::ScopeMarker fullFrame("FullFrame", _profiler);
+
+                const float dt = std::min(GetFrameTime(), maxDeltaTime);
+
+                {
+                    ProfilerTIME::ScopeMarker upd("Update", _profiler);
+                    game.Update(dt);
+                }
+
+                {
+                    ProfilerTIME::ScopeMarker draw("RenderCPU", _profiler);
+
+                    BeginDrawing();
+                    ClearBackground(BLACK);
+
+                    game.Draw();
+                }
+
+                _profiler.DrawZapis();
+
+                {
+                    ProfilerTIME::ScopeMarker present("EndDrawing/Wait", _profiler);
+                    EndDrawing();
+                }
+            }
         }
-
-        {
-            ProfilerTIME::ScopeMarker draw("RenderCPU", _profiler);
-
-            BeginDrawing();
-            ClearBackground(BLACK);
-
-            game.Draw();
+        catch(const std::exception& error) {
+            TraceLog(LOG_ERROR, "%s" ,error.what());
         }
-
-        _profiler.DrawZapis();
-
-        {
-            ProfilerTIME::ScopeMarker present("EndDrawing/Wait", _profiler);
-            EndDrawing();
-        }
+        game.ClearStates();
+        _assets.Clear();
     }
-    game.ClearStates();
     CloseWindow();
 }

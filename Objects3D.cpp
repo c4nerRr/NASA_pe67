@@ -13,16 +13,40 @@ namespace {
 }
 
 
-Objects3D::Objects3D() = default;
+Objects3D::Objects3D(const Model &model, Matrix transform) : _model(model), _transform(transform) {
+}
 
 Objects3D::~Objects3D() = default;
 
 void Objects3D::Draw() const {
-    DrawSphereEx(_moonCenter, _moodRadius, rings, slices, moonColor);
+   Model view = _model;
+    view.transform = MatrixMultiply(view.transform, _transform);
+
+    DrawModel(view, {}, 1.0f, WHITE);
 }
 
-Vector3 Objects3D::GetSurfacePoint(Vector3 direction) const {
-    const Vector3 normal = Vector3Normalize(direction);
+BoundingBox Objects3D::GetBounds() const {
+    const BoundingBox local = GetModelBoundingBox(_model);
+    BoundingBox result{};
 
-    return Vector3Add(_moonCenter, Vector3Scale(normal, _moodRadius));
+    for (int i = 0; i < 8; ++i) {
+        Vector3 point{
+            (i & 1) ? local.max.x : local.min.x,
+            (i & 2) ? local.max.y : local.min.y,
+            (i & 4) ? local.max.z : local.min.z
+        };
+
+        point = Vector3Transform(point, _transform);
+
+        if (i == 0) {
+            result = {point, point};
+            continue;
+        }
+
+        result.min = Vector3Min(result.min, point);
+        result.max = Vector3Max(result.max, point);
+    }
+
+    return result;
 }
+

@@ -4,45 +4,79 @@
 
 #include "Hub.h"
 
-Hub::Hub() { //TODO: Камеру не позоритись і перенести в геймкамера клас.
-    _camera.position = {0.0f, 3.0f, 9.0f};
-    _camera.target = {0.0f, -1.0f, 0.0f};
-    _camera.up = {0.0f, 1.0f, 0.0f};
-    _camera.fovy = 45.0f;
-    _camera.projection = CAMERA_PERSPECTIVE;
+#include "raymath.h"
+#include <algorithm>
+#include <stdexcept>
+#include <raymath.h>
+#include <rlgl.h>
 
-    const auto makePortal = [this](Vector3 direction,GameState target,Color color) {
-      HubPortal portal; //TODO: задуматись нашо іменно тут ініціалізуеш.
-        portal.position = _objects3D.GetSurfacePoint(direction);
-        portal.targetState = target;
-        portal.color = color;
 
-        constexpr float heightOffset = 0.35f;
-        portal.position.y += portal.size.y * heightOffset;
+//         Hub ->
+//Objects3D && HubPortal
 
-        return portal;
-    };
+namespace {
+    Matrix MakeSceneTransform(const Model& moon,const HubConfig& config) {
+        const BoundingBox bounds = GetModelBoundingBox(moon);
 
-    _portals = {{
-        makePortal({0.0f, 1.0f, -0.30f},GameState::Game1,SKYBLUE),
-        makePortal({-0.30f, 1.0f, 0.0f},GameState::Game2,PURPLE),
-        makePortal({0.30f, 1.0f, 0.0f},GameState::Game3,ORANGE),
-        makePortal({0.0f, 1.0f, 0.30f},GameState::Game4,GREEN
-        )}};
+        const Vector3 center = Vector3Scale( Vector3Add(bounds.min, bounds.max), 0.5f);
+
+        const Vector3 size = Vector3Subtract(bounds.max, bounds.min);
+
+        const float diameter = std::max({size.x, size.y, size.z});
+
+        if (diameter <= 0 || config.moonRadius <= 0) {
+            throw std::runtime_error("Invalid moon size");
+        }
+
+        const float scale = config.moonRadius * 2.0f / diameter;
+
+        Matrix result = MatrixTranslate(-center.x, -center.y, -center.z);
+
+        result = MatrixMultiply(result, MatrixRotateY(config.sceneYaw * DEG2RAD));
+
+        result = MatrixMultiply(result,MatrixScale(scale, scale, scale));
+
+        return MatrixMultiply(result,MatrixTranslate(config.moonCenter.x,config.moonCenter.y,config.moonCenter.z));
+    }
 }
+
+Hub::Hub( const Model& moon, const std::vector<PortalModel>& port, const HubConfig& config)
+    : _sceneTransform(MakeSceneTransform(moon, config)),
+      _objects3D(moon, _sceneTransform),
+      _camera(config.camera),
+      _doubleSided(config.doubleSided) {
+
+    _portals.reserve(port.size());
+
+    for (const auto& portal : port) {
+        _portals.emplace_back(
+            *portal.model,
+            _sceneTransform,
+            portal.target
+        );
+    }
+}
+
+
 
 Hub::~Hub() = default;
 
 void Hub::Update(float dt) {
-    //TODO:Мишка тут
+    //TODO:Мишка тут(вибір бази точніше тут)
 
 }
 
 void Hub::Draw() const {
     BeginMode3D(_camera);
+    if (_doubleSided) {
+        rlDisableBackfaceCulling();
+    }
     _objects3D.Draw();
     for (const HubPortal& portal : _portals) {
         portal.Draw();
+    }
+    if (_doubleSided) {
+        rlEnableBackfaceCulling();
     }
     EndMode3D();
 }

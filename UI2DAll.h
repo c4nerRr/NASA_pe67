@@ -4,10 +4,17 @@
 
 #ifndef NASA_UI2DALL_H
 #define NASA_UI2DALL_H
+#include <string>
+
+#include "raylib.h"
 
 
 class UI2DAll {
-    //TODO: вся логика юай тут (та которая не в геймах и не в меню)
+    UI2DAll();
+    ~UI2DAll();
+
+    void DrawUi(std::string text) const;
+    void DrawPhotoMaskot(Texture2D* textur);
 };
 
 

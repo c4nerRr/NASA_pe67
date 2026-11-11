@@ -5,19 +5,29 @@
 #ifndef NASA_HUB_H
 #define NASA_HUB_H
 #include <array>
+#include <vector>
 
+#include "HubConfig.h"
 #include "HubPortal.h"
 #include "IState.h"
 #include "Objects3D.h"
 
+struct PortalModel {
+    const Model* model;
+    GameState target;
+};
 
 class Hub : public IState {
+    Matrix _sceneTransform;
     Objects3D _objects3D;
     Camera3D _camera{};
-    std::array<HubPortal, 4> _portals{};
+
+    std::vector<HubPortal> _portals;
+
+    bool _doubleSided;
 
 public:
-    Hub();
+    Hub(const Model& moon, const std::vector<PortalModel>& port, const HubConfig& config);
     ~Hub() override;
 
     void Update(float dt) override;

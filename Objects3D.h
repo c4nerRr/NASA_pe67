@@ -8,15 +8,16 @@
 
 
 class Objects3D {
-   Vector3 _moonCenter{0.0f, -10.0f, 0.0f};
-   float _moodRadius = 10.0f;
+
+   const Model& _model;
+   Matrix _transform;
 
 public:
-   Objects3D();
+   Objects3D(const Model& model, Matrix transform);
    ~Objects3D();
 
    void Draw() const;
-   [[nodiscard]] Vector3 GetSurfacePoint(Vector3 direction) const;
+   [[nodiscard]] BoundingBox GetBounds() const;
 };
 
 

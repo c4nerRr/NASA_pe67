@@ -12,6 +12,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(raylib)
 
+target_compile_definitions(raylib PRIVATE SUPPORT_FILEFORMAT_JPG=1)
+
 add_executable(NASA
         main.cpp
         Init.cpp
@@ -44,6 +46,18 @@ add_executable(NASA
         HubPortal.h
         Hub.cpp
         Hub.h
+        GameAssets.cpp
+        GameAssets.h
+        HubConfig.h
 )
+
+add_custom_target(NASA_assets ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/assets"
+        "$<TARGET_FILE_DIR:NASA>/assets"
+        VERBATIM
+)
+
+add_dependencies(NASA NASA_assets)
 
 target_link_libraries(NASA PRIVATE raylib)
