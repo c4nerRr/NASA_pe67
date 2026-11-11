@@ -4,9 +4,11 @@
 
 #ifndef NASA_INIT_H
 #define NASA_INIT_H
+#include "ProfilerTIME.h"
 
 
 class Init {
+    ProfilerTIME _profiler;
 
 
     public:

@@ -38,6 +38,8 @@ add_executable(NASA
         UI2DAll.h
         InputManager.cpp
         InputManager.h
+        ProfilerTIME.cpp
+        ProfilerTIME.h
 )
 
 target_link_libraries(NASA PRIVATE raylib)

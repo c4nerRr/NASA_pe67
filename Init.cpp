@@ -10,14 +10,19 @@
 #include "MainMenu.h"
 #include "raylib.h"
 
+namespace {
+    constexpr float maxDeltaTime = 0.05f;
+}
+
 Init::Init() = default;
 
 Init::~Init() = default;
 
+
 void Init::Run() {
     InitWindow(1920,1080, "NASA");
     SetExitKey(KEY_NULL);
-    SetTargetFPS(60);
+    SetTargetFPS(60); //1000 мс / 60 ≈ 16,67 мс
 
     auto& game = GameManager::Instanse();
 
@@ -27,16 +32,31 @@ void Init::Run() {
     game.ChangeState(GameState::Menu);
 
     while (!WindowShouldClose() && !game.ShouldQuit()) {
-        const float dt = std::min(GetFrameTime(), 0.05f); //TODO::убрати магічні числа
+        _profiler.BeginFrame();
+        ProfilerTIME::ScopeMarker fullFrame("FullFrame", _profiler);
 
-        game.Update(dt);
+        const float dt = std::min(GetFrameTime(), maxDeltaTime);
 
-        BeginDrawing();
-        ClearBackground(BLACK);
+        {
+            ProfilerTIME::ScopeMarker upd("Update", _profiler);
+            game.Update(dt);
+        }
 
-        game.Draw();
+        {
+            ProfilerTIME::ScopeMarker draw("RenderCPU", _profiler);
 
-        EndDrawing();
+            BeginDrawing();
+            ClearBackground(BLACK);
+
+            game.Draw();
+        }
+
+        _profiler.DrawZapis();
+
+        {
+            ProfilerTIME::ScopeMarker present("EndDrawing/Wait", _profiler);
+            EndDrawing();
+        }
     }
     game.ClearStates();
     CloseWindow();
