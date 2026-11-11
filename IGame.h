@@ -6,7 +6,18 @@
 #define NASA_IGAME_H
 
 class IGame {
+
+    protected:
+    bool IsPause = false;
+
     public:
+
+    IGame();
+    virtual ~IGame();
+
+    void Start();
+    void Update();
+    void End();
 };
 
 #endif //NASA_IGAME_H

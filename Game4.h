@@ -11,6 +11,12 @@
 class Game4 : public IGame, public IState {
 
     public:
+    Game4();
+    ~Game4() override;
+
+    void Start();
+    void Update();
+    void End();
 };
 
 
