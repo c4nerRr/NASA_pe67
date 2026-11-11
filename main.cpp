@@ -3,7 +3,5 @@
 
 int main() {
 
-    std::cout << "Hello, World!" << std::endl;
     return 0;
-    delete system32;
 }
