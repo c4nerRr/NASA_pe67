@@ -4,8 +4,9 @@
 
 #ifndef NASA_MAINMENU_H
 #define NASA_MAINMENU_H
+#include "IState.h"
 
-class MainMenu {
+class MainMenu : public IState {
 };
 
 

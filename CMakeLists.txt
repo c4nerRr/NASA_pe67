@@ -29,6 +29,9 @@ add_executable(NASA
         Game3.h
         Game4.cpp
         Game4.h
+        Setting.cpp
+        Setting.h
+        IState.h
 )
 
 target_link_libraries(NASA PRIVATE raylib)

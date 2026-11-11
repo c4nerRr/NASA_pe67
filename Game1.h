@@ -5,9 +5,10 @@
 #ifndef NASA_GAME1_H
 #define NASA_GAME1_H
 #include "IGame.h"
+#include "IState.h"
 
 
-class Game1 : public IGame {
+class Game1 : public IGame, public IState{
 
     public:
 };
