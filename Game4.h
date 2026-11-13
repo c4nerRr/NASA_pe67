@@ -6,9 +6,33 @@
 #define NASA_GAME4_H
 #include "IGame.h"
 #include "IState.h"
+#include <array>
+#include "raylib.h"
 
 
 class Game4 : public IGame, public IState {
+
+    enum class Tool {None, Water, Light };
+
+    struct Bed {
+        bool _watered = false, _light = false;
+    };
+
+    static constexpr int _bedCount = 3;
+
+    struct Layout {
+        Rectangle _waterButton{};
+        Rectangle _lightButton{};
+        std::array<Rectangle, _bedCount> _beds{};
+    };
+
+    void BuildLayout();
+    void ToggleTool(Tool tool);
+    void ApplyTool(Bed& bed);
+
+    Tool _selectedTool = Tool::None;
+    std::array<Bed, _bedCount> _beds{};
+    Layout _layout{};
 
     bool IsHereOnce = false;
     enum class Phase {
