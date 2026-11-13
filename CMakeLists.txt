@@ -55,6 +55,8 @@ add_executable(NASA
         LightConfig.h
         ScaneLight.cpp
         ScaneLight.h
+        GreenGarden.cpp
+        GreenGarden.h
 )
 
 add_custom_target(NASA_assets ALL
