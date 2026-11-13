@@ -16,8 +16,10 @@ struct HubPortal {
     HubPortal(const Model& model, Matrix transform, GameState target);
     void Draw() const;
 
-    [[nodiscard]] BoundingBox GetBounds() const;
+    void Draw(Shader shader) const;
 
+    [[nodiscard]] BoundingBox GetBounds() const;
+    [[nodiscard]] float GetRayHitDistance(Ray ray) const;
 };
 
 

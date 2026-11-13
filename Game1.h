@@ -8,15 +8,14 @@
 #include "IState.h"
 
 
-class Game1 : public IGame, public IState{
+class Game1 : public IGame, public IState {
 
     public:
     Game1();
     ~Game1() override;
 
-    void Start();
-    void Update();
-    void End();
+    void Update(float dt) override;
+    void Draw() const override;
 };
 
 

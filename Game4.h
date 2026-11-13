@@ -10,13 +10,28 @@
 
 class Game4 : public IGame, public IState {
 
+    bool IsHereOnce = false;
+    enum class Phase {
+        Theory,
+        Rules,
+        Playing
+    };
+
+    Phase _phase = Phase::Theory;
+
+    void ShowTheory();//учєбний текст
+    void ShowRules(); //діалог з правилами
+    void StartGame();
+    void UpdateGame(float dt);
+    void DrawGarden() const;
+
     public:
     Game4();
     ~Game4() override;
 
-    void Start();
-    void Update();
-    void End();
+    void OnEnter() override;
+    void Update(float dt) override;
+    void Draw() const override;
 };
 
 

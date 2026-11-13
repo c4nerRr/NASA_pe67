@@ -9,6 +9,8 @@ class IState {
     public:
     virtual ~IState() = default;
 
+    virtual void OnEnter() {};
+
     virtual void Update(float dt) = 0;
     virtual void Draw() const = 0;
 };

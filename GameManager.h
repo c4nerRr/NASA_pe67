@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "IState.h"
+#include "UI2DAll.h"
 
 enum class GameState {Boot, Menu, Hub, Game1, Game2, Game3, Game4, Pause};
 
@@ -20,6 +21,7 @@ class GameManager {
     bool _quitRequested = false;
 
     std::map<GameState, std::unique_ptr<IState>> _states;
+    UI2DAll _ui;
 
 public:
     static GameManager& Instanse();
@@ -38,6 +40,12 @@ public:
     void RegisterState(GameState id, std::unique_ptr<IState> state);
     void Draw() const;
     void ClearStates();
+
+    [[nodiscard]] bool CanEnterState(GameState state) const;
+
+    bool ShowDialogue(const std::vector<std::string>& messages);
+
+    [[nodiscard]] bool IsDialogueActive() const;
 
 };
 

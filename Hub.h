@@ -4,13 +4,15 @@
 
 #ifndef NASA_HUB_H
 #define NASA_HUB_H
-#include <array>
+
 #include <vector>
 
 #include "HubConfig.h"
+#include "HubOutline.h"
 #include "HubPortal.h"
 #include "IState.h"
 #include "Objects3D.h"
+#include "ScaneLight.h"
 
 struct PortalModel {
     const Model* model;
@@ -25,6 +27,11 @@ class Hub : public IState {
     std::vector<HubPortal> _portals;
 
     bool _doubleSided;
+    bool _introShown = false;
+
+    int _hoveredPortal = -1;
+    HubOutline _outline;
+    ScaneLight _lighting;
 
 public:
     Hub(const Model& moon, const std::vector<PortalModel>& port, const HubConfig& config);
@@ -32,7 +39,8 @@ public:
 
     void Update(float dt) override;
     void Draw() const override;
-};
 
+    void OnEnter() override;
+};
 
 #endif //NASA_HUB_H

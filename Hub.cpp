@@ -10,6 +10,8 @@
 #include <raymath.h>
 #include <rlgl.h>
 
+#include "InputManager.h"
+
 
 //         Hub ->
 //Objects3D && HubPortal
@@ -40,20 +42,11 @@ namespace {
     }
 }
 
-Hub::Hub( const Model& moon, const std::vector<PortalModel>& port, const HubConfig& config)
-    : _sceneTransform(MakeSceneTransform(moon, config)),
-      _objects3D(moon, _sceneTransform),
-      _camera(config.camera),
-      _doubleSided(config.doubleSided) {
-
+Hub::Hub( const Model& moon, const std::vector<PortalModel>& port, const HubConfig& config): _sceneTransform(MakeSceneTransform(moon, config)),_objects3D(moon, _sceneTransform),_camera(config.camera),_doubleSided(config.doubleSided), _lighting(config.lighting) {
     _portals.reserve(port.size());
 
     for (const auto& portal : port) {
-        _portals.emplace_back(
-            *portal.model,
-            _sceneTransform,
-            portal.target
-        );
+        _portals.emplace_back(*portal.model,_sceneTransform,portal.target);
     }
 }
 
@@ -62,21 +55,86 @@ Hub::Hub( const Model& moon, const std::vector<PortalModel>& port, const HubConf
 Hub::~Hub() = default;
 
 void Hub::Update(float dt) {
-    //TODO:Мишка тут(вибір бази точніше тут)
+    _hoveredPortal = -1;
+    const Ray ray = GetScreenToWorldRay(InputManager::MousePosition(),_camera);
+
+    float nearestDistance = std::numeric_limits<float>::infinity();
+    int nearestPortal = -1;
+    for (int i = 0; i < static_cast<int>(_portals.size()); ++i) {
+        const float distance = _portals[i].GetRayHitDistance(ray);
+
+        if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearestPortal = i;
+        }
+    }
+
+    if (nearestPortal < 0) {
+        return;
+    }
+    if (_objects3D.GetRayHitDistance(ray) <= nearestDistance) {
+        return;
+    }
+
+    auto& game = GameManager::Instanse();
+    const GameState target = _portals[nearestPortal]._targetState;
+
+    if (!game.CanEnterState(target)) {
+        return;
+    }
+    _hoveredPortal = nearestPortal;
+
+    _outline.Resize(GetScreenWidth(), GetScreenHeight());
+
+    if (InputManager::PressLeftMouse()) {
+        _hoveredPortal = -1;
+        game.ChangeState(target);
+        return;
+    }
 
 }
 
 void Hub::Draw() const {
     BeginMode3D(_camera);
+
     if (_doubleSided) {
         rlDisableBackfaceCulling();
     }
-    _objects3D.Draw();
+    const Shader shader = _lighting.GetShader();
+
+    _objects3D.DrawWithShader(shader);
+
     for (const HubPortal& portal : _portals) {
-        portal.Draw();
+        portal.Draw(shader);
     }
+
     if (_doubleSided) {
         rlEnableBackfaceCulling();
     }
+
     EndMode3D();
+
+    if (_hoveredPortal >= 0) {
+        _outline.Draw(_camera,_objects3D,_portals,_hoveredPortal,_doubleSided);
+    }
+}
+
+void Hub::OnEnter() {
+    _hoveredPortal = -1;
+
+    if (_introShown) {
+        return;
+    }
+
+    _introShown = GameManager::Instanse().ShowDialogue({
+        "Welcome to the Moon, explorer! "
+        "I will be your mission guide.",
+
+        "There are four stations on this Moon. "
+        "Each station contains a different space challenge. "
+        "Choose any station to begin.",
+
+        "Complete all four challenges to finish your mission. "
+        "Good luck, explorer!"
+    });
 }

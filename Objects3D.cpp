@@ -50,3 +50,39 @@ BoundingBox Objects3D::GetBounds() const {
     return result;
 }
 
+float Objects3D::GetRayHitDistance(Ray ray) const {
+    const Matrix world = MatrixMultiply(_model.transform, _transform);
+    const Matrix inverseWorld = MatrixInvert(world);
+
+    const Vector3 localOrigin = Vector3Transform(ray.position, inverseWorld);
+
+    const Vector3 localEnd = Vector3Transform(Vector3Add(ray.position, ray.direction),inverseWorld);
+
+    const Ray localRay{localOrigin,Vector3Normalize(Vector3Subtract(localEnd, localOrigin))};
+    float nearestDistance = std::numeric_limits<float>::infinity();
+
+    for (int i = 0; i < _model.meshCount; ++i) {
+        const RayCollision hit = GetRayCollisionMesh(localRay,_model.meshes[i],MatrixIdentity());
+
+        if (!hit.hit) {
+            continue;
+        }
+        const Vector3 worldPoint = Vector3Transform(hit.point, world);
+        const float distance = Vector3Distance(ray.position, worldPoint);
+        if (distance < nearestDistance) {
+            nearestDistance = distance;
+        }
+    }
+    return nearestDistance;
+}
+
+void Objects3D::DrawWithShader(Shader shader) const {
+    const Matrix world = MatrixMultiply(_model.transform, _transform);
+
+    for (int i = 0; i < _model.meshCount; ++i) {
+        Material material = _model.materials[_model.meshMaterial[i]];
+        material.shader = shader;
+
+        DrawMesh(_model.meshes[i], material, world);
+    }
+}
