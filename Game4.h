@@ -8,54 +8,81 @@
 #include "IState.h"
 #include <array>
 #include "raylib.h"
+#include "GreenGarden.h"
 
 
 class Game4 : public IGame, public IState {
-
-    enum class Tool {None, Water, Light };
-
-    struct Bed {
-        bool _watered = false, _light = false;
-    };
-
-    static constexpr int _bedCount = 3;
-
-    struct Layout {
-        Rectangle _waterButton{};
-        Rectangle _lightButton{};
-        std::array<Rectangle, _bedCount> _beds{};
-    };
-
-    void BuildLayout();
-    void ToggleTool(Tool tool);
-    void ApplyTool(Bed& bed);
-
-    Tool _selectedTool = Tool::None;
-    std::array<Bed, _bedCount> _beds{};
-    Layout _layout{};
-
-    bool IsHereOnce = false;
-    enum class Phase {
-        Theory,
-        Rules,
-        Playing
-    };
-
-    Phase _phase = Phase::Theory;
-
-    void ShowTheory();//учєбний текст
-    void ShowRules(); //діалог з правилами
-    void StartGame();
-    void UpdateGame(float dt);
-    void DrawGarden() const;
-
-    public:
+public:
     Game4();
     ~Game4() override;
 
     void OnEnter() override;
     void Update(float dt) override;
     void Draw() const override;
+
+    [[nodiscard]] int GetReputation() const;
+
+private:
+    enum class Tool {
+        None,
+        Water,
+        Light
+    };
+
+    enum class Phase {
+        Theory,
+        Rules,
+        Playing,
+        Night,
+        Result
+    };
+
+    struct Layout {
+        Rectangle garden{};
+        Rectangle water{};
+        Rectangle light{};
+        Rectangle nextDay{};
+        Rectangle help{};
+
+        std::array<Rectangle, GreenGarden::BedCount> beds{};
+
+        int width = 0;
+        int height = 0;
+        float scale = 1.0f;
+    };
+
+    GreenGarden _garden;
+    Layout _layout;
+
+    Tool _tool = Tool::None;
+    Phase _phase = Phase::Theory;
+
+    bool _theoryShown = false;
+
+    float _nightTime = 0.0f;
+    float _noticeTime = 0.0f;
+
+    const char* _notice = "";
+
+    void BuildLayout();
+
+    void ShowTheory();
+    void ShowRules();
+    void StartGame();
+
+    void UpdateGame();
+    void ApplyTool(int index);
+
+    void AdvanceDay();
+    void FinishGame();
+
+    void Notify(const char* message);
+
+    void DrawGarden() const;
+    void DrawPlant(Rectangle bounds, int frame) const;
+
+    static int PlantFrame(const GreenGarden::Bed& bed);
+    static const char* BedHint(const GreenGarden::Bed& bed);
 };
 
 

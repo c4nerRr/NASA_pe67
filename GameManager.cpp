@@ -4,6 +4,7 @@
 
 #include "GameManager.h"
 
+#include "AudioManager.h"
 #include "IGame.h"
 
 GameManager::GameManager() = default;
@@ -32,6 +33,7 @@ void GameManager::ChangeState(GameState newState) {
 }
 
 void GameManager::Update(float dt) {
+    AudioManager::Instance().Update();
     if (_ui.IsDialogueActive()) {
         _ui.Update(dt);
         return;

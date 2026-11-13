@@ -16,6 +16,7 @@
 #include "MainMenu.h"
 #include "raylib.h"
 #include "Hub.h"
+#include "AudioManager.h"
 
 namespace {
     constexpr float maxDeltaTime = 0.05f;
@@ -30,11 +31,14 @@ void Init::Run() {
     SetExitKey(KEY_NULL);
     SetTargetFPS(60); //1000 мс / 60 ≈ 16,67 мс
 
+    AudioManager::Instance().Init();
+
     auto& game = GameManager::Instanse();
 
     {
         try {
             const std::filesystem::path root = GetApplicationDirectory();
+            AudioManager::Instance().PlayBackgroundMusic((root / "assets" / "Nasa.ogg").string());
 
             const Model& moon = _assets.Load( (root / _config.moonPath).string(), _config.emissionAsAlbedo);
             std::vector<PortalModel> portals;
@@ -86,5 +90,6 @@ void Init::Run() {
         game.ClearStates();
         _assets.Clear();
     }
+    AudioManager::Instance().Close();
     CloseWindow();
 }

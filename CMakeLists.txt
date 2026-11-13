@@ -57,6 +57,8 @@ add_executable(NASA
         ScaneLight.h
         GreenGarden.cpp
         GreenGarden.h
+        AudioManager.cpp
+        AudioManager.h
 )
 
 add_custom_target(NASA_assets ALL
@@ -65,6 +67,8 @@ add_custom_target(NASA_assets ALL
         "$<TARGET_FILE_DIR:NASA>/assets"
         VERBATIM
 )
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_dependencies(NASA NASA_assets)
 
