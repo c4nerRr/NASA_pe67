@@ -10,7 +10,6 @@ class IGame {
     protected:
     bool IsFinished = false;
 
-
     public:
     virtual ~IGame() = default;
     [[nodiscard]] bool GetFinished() const{ return IsFinished; }
