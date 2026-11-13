@@ -5,6 +5,7 @@
 #include "Objects3D.h"
 
 #include "raymath.h"
+#include <limits>
 
 namespace {
     constexpr int rings = 32;

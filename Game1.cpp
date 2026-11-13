@@ -1,7 +1,3 @@
-//
-// Created by c4ner on 11/11/2026.
-//
-
 #include "Game1.h"
 
 #include "GameManager.h"

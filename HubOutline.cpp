@@ -5,6 +5,7 @@
 #include "HubOutline.h"
 
 #include "rlgl.h"
+#include <stdexcept>
 
 namespace {
      const char* maskFragment = R"glsl(
@@ -133,7 +134,6 @@ void HubOutline::Draw(const Camera3D &camera, const Objects3D &moon, const std::
     EndMode3D();
     EndTextureMode();
 
-    // Накладываем только белую границу поверх готовой сцены.
     BeginShaderMode(_outlineShader);
 
     DrawTextureRec(_mask.texture,{0.0f,0.0f,static_cast<float>(_mask.texture.width),-static_cast<float>(_mask.texture.height)},{0.0f, 0.0f},WHITE);
