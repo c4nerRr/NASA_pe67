@@ -142,4 +142,5 @@ void GreenGarden::AdvanceDay(const std::array<bool, BedCount> &rot) {
 }
 
 bool GreenGarden::CanCareFor(int index) const {
+    return index >= 0 & index < BedCount &&_outcome == Outcome::Playing &&!_beds[index].dead &&!_beds[index].Ready();
 }
