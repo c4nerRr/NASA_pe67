@@ -9,6 +9,7 @@
 
 #include "GameManager.h"
 #include "raylib.h"
+#include "LightConfig.h"
 
 struct PortalConfig {
     std::string path;
@@ -16,6 +17,8 @@ struct PortalConfig {
 };
 
 struct HubConfig {
+    LightConfig lighting{};
+
     std::string moonPath = "assets/models/moon.glb";
 
     std::vector<PortalConfig> portals{

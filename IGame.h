@@ -8,16 +8,12 @@
 class IGame {
 
     protected:
-    bool IsPause = false;
+    bool IsFinished = false;
+
 
     public:
-
-    IGame();
-    virtual ~IGame();
-
-    void Start();
-    void Update();
-    void End();
+    virtual ~IGame() = default;
+    [[nodiscard]] bool GetFinished() const{ return IsFinished; }
 };
 
 #endif //NASA_IGAME_H

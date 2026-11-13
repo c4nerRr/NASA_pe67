@@ -8,6 +8,7 @@
 
 
 class Setting : public IState {
+
 };
 
 

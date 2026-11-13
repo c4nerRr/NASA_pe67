@@ -14,9 +14,8 @@ class Game4 : public IGame, public IState {
     Game4();
     ~Game4() override;
 
-    void Start();
-    void Update();
-    void End();
+    void Update(float dt) override;
+    void Draw() const override;
 };
 
 

@@ -7,6 +7,10 @@
 #include <algorithm>
 #include <filesystem>
 
+#include "Game1.h"
+#include "Game2.h"
+#include "Game3.h"
+#include "Game4.h"
 #include "GameAssets.h"
 #include "GameManager.h"
 #include "MainMenu.h"
@@ -41,6 +45,10 @@ void Init::Run() {
             }
             game.RegisterState(GameState::Menu, std::make_unique<MainMenu>());
             game.RegisterState(GameState::Hub, std::make_unique<Hub>(moon, portals, _config));
+            game.RegisterState(GameState::Game1, std::make_unique<Game1>());
+            game.RegisterState(GameState::Game2, std::make_unique<Game2>());
+            game.RegisterState(GameState::Game3, std::make_unique<Game3>());
+            game.RegisterState(GameState::Game4, std::make_unique<Game4>());
 
             game.ChangeState(GameState::Menu);
 
@@ -59,7 +67,7 @@ void Init::Run() {
                     ProfilerTIME::ScopeMarker draw("RenderCPU", _profiler);
 
                     BeginDrawing();
-                    ClearBackground(BLACK);
+                    ClearBackground({8,4,26,100});
 
                     game.Draw();
                 }

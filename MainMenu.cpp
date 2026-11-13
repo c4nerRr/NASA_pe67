@@ -29,8 +29,7 @@ MainMenu::LayOut MainMenu::GetLayOut() const { //NOLINT
 }
 
 void MainMenu::DrawButton(Rectangle bounds, const char *text) const { //NOLINT
-    const bool hovered =
-       CheckCollisionPointRec(GetMousePosition(), bounds);
+    const bool hovered = CheckCollisionPointRec(InputManager::MousePosition(), bounds);
 
     const Color normal{30, 40, 65, 255};
     const Color hover{55, 75, 110, 255};
@@ -59,7 +58,7 @@ void MainMenu::Update(float dt) {
     if (!InputManager::PressLeftMouse()) {
         return;
     }
-    const Vector2 mousePosition = GetMousePosition();
+    const Vector2 mousePosition = InputManager::MousePosition();
     const LayOut layout = GetLayOut();
 
     auto& game = GameManager::Instanse();
@@ -67,7 +66,7 @@ void MainMenu::Update(float dt) {
         game.ChangeState(GameState::Hub);
     }
     else if (CheckCollisionPointRec(mousePosition, layout.options)) {
-
+        //TODO:тут сеттингс
     }
     else if (CheckCollisionPointRec(mousePosition, layout.exit)) {
         game.RequestQuit();

@@ -18,6 +18,9 @@ public:
 
    void Draw() const;
    [[nodiscard]] BoundingBox GetBounds() const;
+
+   [[nodiscard]]float GetRayHitDistance(Ray ray) const;
+   void DrawWithShader(Shader shader) const;
 };
 
 

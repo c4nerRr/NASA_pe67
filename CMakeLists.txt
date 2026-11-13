@@ -49,6 +49,12 @@ add_executable(NASA
         GameAssets.cpp
         GameAssets.h
         HubConfig.h
+        HubOutline.cpp
+        HubOutline.h
+        LightConfig.cpp
+        LightConfig.h
+        ScaneLight.cpp
+        ScaneLight.h
 )
 
 add_custom_target(NASA_assets ALL
