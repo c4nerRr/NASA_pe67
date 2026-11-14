@@ -3,17 +3,12 @@
 #include "InputManager.h"
 #include <algorithm>
 
-namespace
-{
-    constexpr int titleSize = 36;
-    constexpr const char* title = "LIFE SUPPORT RESTORATION";
-}
-
 Game2::Game2() = default;
 Game2::~Game2() = default;
 
 void Game2::OnEnter()
 {
+    _art.Load();
     UpdateLayout();
 
     if (!isHereOnce)
@@ -30,14 +25,19 @@ void Game2::OnEnter()
 
 void Game2::UpdateLayout()
 {
-    float screenWidth = static_cast<float>(GetScreenWidth());
-    float screenHeight = static_cast<float>(GetScreenHeight());
+    const auto w = static_cast<float>(GetScreenWidth());
+    const auto h = static_cast<float>(GetScreenHeight());
 
-    float maxGridSize = std::min(screenWidth, screenHeight) * 0.65f;
-    _cellSize = maxGridSize / gridSize;
+    _uiScale = std::min(w * 0.90f / PipeDesign::boardSize.x, h * 0.88f / PipeDesign::boardSize.y);
 
-    _startX = (screenWidth - (_cellSize * gridSize)) * 0.5f;
-    _startY = (screenHeight - (_cellSize * gridSize)) * 0.5f;
+    const float width = PipeDesign::boardSize.x * _uiScale;
+    const float height = PipeDesign::boardSize.y * _uiScale;
+
+    _boardRect = {(w - width) * 0.5f, (h - height) * 0.5f, width, height};
+
+    _startX = _boardRect.x + PipeDesign::gridArea.x * _uiScale;
+    _startY = _boardRect.y + PipeDesign::gridArea.y * _uiScale;
+    _cellSize = PipeDesign::gridArea.width * _uiScale / gridSize;
 }
 
 void Game2::ShowTheory()
@@ -162,88 +162,82 @@ void Game2::Update(float dt)
 
 void Game2::Draw() const
 {
-    const Rectangle frame = {GetScreenWidth() * 0.05f, GetScreenHeight() * 0.05f, GetScreenWidth() * 0.90f, GetScreenHeight() * 0.90f};
+    PipeArt::Draw(_art.Background(), {0, 0, static_cast<float>(GetScreenWidth()), static_cast<float>(GetScreenHeight())});
+    PipeArt::Draw(_art.Board(), _boardRect);
 
-    DrawRectangleRec(frame, DARKBLUE);
-    DrawRectangleLinesEx(frame, 4.0f, RAYWHITE);
+    constexpr Color ink{24, 21, 49, 255};
 
-    int textX = static_cast<int>(_startX);
-    int textY = static_cast<int>(_startY) - 80;
+    const auto centered = [&](const char* value, float y, int size) {
+        const int font = std::max(10, static_cast<int>(size * _uiScale));
+        const float x = _boardRect.x + (_boardRect.width - MeasureText(value, font)) * 0.5f;
+        DrawText(value, static_cast<int>(x), static_cast<int>(y), font, ink);
+    };
 
-    if (textY < static_cast<int>(frame.y) + 10)
-    {
-        textY = static_cast<int>(frame.y) + 10;
-    }
+    centered("LIFE SUPPORT RESTORATION", _boardRect.y + 34 * _uiScale, 32);
+    centered("CLICK - rotate pipe    SPACE - back to Hub", _boardRect.y + 94 * _uiScale, 20);
+    centered("GRAY: DRY    BROWN: UNTREATED    BLUE: CLEAN", _boardRect.y + 960 * _uiScale, 18);
 
-    DrawText(title, textX, textY, titleSize, RAYWHITE);
-    DrawText("SPACE - back to Hub", textX, textY + 40, 24, RAYWHITE);
-
-    if (_phase == Phase::Playing || _phase == Phase::Win)
-    {
+    if (_phase == Phase::Playing || _phase == Phase::Win) {
         DrawGrid();
     }
 }
 
 void Game2::DrawGrid() const
 {
-    for (int y = 0; y < gridSize; y++)
-    {
-        for (int x = 0; x < gridSize; x++)
-        {
-            float cellX = _startX + x * _cellSize;
-            float cellY = _startY + y * _cellSize;
-            DrawRectangleLines(cellX, cellY, _cellSize, _cellSize, GRAY);
+   const auto mouse = InputManager::MousePosition();
+    const bool interactive = _phase == Phase::Playing && !GameManager::Instanse().IsDialogueActive();
+    const float line = std::max(1.0f, _uiScale);
+    const int font = std::max(10, static_cast<int>(14 * _uiScale));
 
-            const Pipe& p = grid[y][x];
-            if (p.type == PipeType::Empty) continue;
+    for (int y = 0; y < gridSize; ++y) {
+        for (int x = 0; x < gridSize; ++x) {
+            const auto&[type, rotation, connected, filtered] = grid[y][x];
+            const Rectangle cell{_startX + x * _cellSize, _startY + y * _cellSize, _cellSize, _cellSize};
 
-            Color waterColor = GRAY;
-            if (p.filtered) waterColor = SKYBLUE;
-            else if (p.connected) waterColor = BLUE;
+            const bool rotatable =
+                type == PipeType::Straight ||
+                type == PipeType::Corner ||
+                type == PipeType::Filter;
 
-            Vector2 center = { cellX + _cellSize / 2.0f, cellY + _cellSize / 2.0f };
-
-            if (p.type == PipeType::Source)
-            {
-                DrawCircleV(center, _cellSize * 0.15f, BLUE);
-                DrawText("SRC", center.x - 12, center.y - 8, 10, WHITE);
-            }
-            else if (p.type == PipeType::Reservoir)
-            {
-                DrawCircleV(center, _cellSize * 0.15f, GREEN);
-                DrawText("RES", center.x - 12, center.y - 8, 10, WHITE);
-            }
-            else if (p.type == PipeType::Filter)
-            {
-                DrawRectangle(center.x - _cellSize * 0.2f, center.y - _cellSize * 0.2f, _cellSize * 0.4f, _cellSize * 0.4f, YELLOW);
-                DrawText("FLT", center.x - 10, center.y - 8, 10, BLACK);
+            if (interactive && rotatable && CheckCollisionPointRec(mouse, cell)) {
+                DrawRectangleRec(cell, Fade(WHITE, 0.08f));
             }
 
-            for (int i = 0; i < 4; i++)
-            {
-                if (HasConnection(p.type, p.rotation, i))
-                {
-                    Vector2 end = center;
-                    switch (i)
-                    {
-                    case 0:
-                            end.y -= _cellSize / 2.0f;
-                            break;
-                    case 1:
-                            end.x += _cellSize / 2.0f;
-                            break;
-                    case 2:
-                            end.y += _cellSize / 2.0f;
-                            break;
-                    case 3:
-                            end.x -= _cellSize / 2.0f;
-                            break;
+            DrawRectangleLinesEx(cell, line, Color{62, 53, 79, 255});
 
-                        default:
-                            break;
-                    }
-                    DrawLineEx(center, end, _cellSize * 0.15f, waterColor);
+            if (type == PipeType::Empty) continue;
+
+            const auto flow = filtered ? PipeArt::Flow::Clean : connected ? PipeArt::Flow::Dirty : PipeArt::Flow::Dry;
+
+            const char* label = nullptr;
+            auto marker = WHITE;
+
+            if (type == PipeType::Source) {
+                PipeArt::Draw(_art.Source((rotation + 1) % 4), cell);
+                label = "SRC";
+                marker = SKYBLUE;
+            }
+            else if (type == PipeType::Reservoir) {
+                PipeArt::Draw(_art.Reservoir((rotation + 3) % 4, filtered), cell);
+                label = "RES";
+                marker = connected && !filtered ? ORANGE : LIME;
+            }
+            else {
+                const bool corner = type == PipeType::Corner;
+                const float angle = static_cast<float>((rotation + (corner ? 1 : 0)) % 4) * 90.0f;
+
+                PipeArt::Draw(_art.Tube(corner, flow), cell, angle);
+
+                if (type == PipeType::Filter) {
+                    _art.DrawFilter(cell, connected);
+                    label = "FLT";
+                    marker = GOLD;
                 }
+            }
+
+            if (label) {
+                DrawRectangleLinesEx(cell, std::max(1.0f, 2 * _uiScale), marker);
+                DrawText(label, static_cast<int>(cell.x + 5 * _uiScale), static_cast<int>(cell.y + 5 * _uiScale), font, marker);
             }
         }
     }
@@ -272,45 +266,41 @@ void Game2::UpdateFlow()
     }
 }
 
-void Game2::CheckConnection(int x, int y, bool isFiltered)
-{
+void Game2::CheckConnection(int x, int y, bool isFiltered, int incoming) {
     Pipe& current = grid[y][x];
 
-    if (current.connected && (current.filtered || !isFiltered))
-    {
-        return;
-    }
+    if (current.connected && (current.filtered || !isFiltered)) return;
 
     current.connected = true;
     if (isFiltered) current.filtered = true;
 
     bool nextFiltered = isFiltered;
-    if (current.type == PipeType::Filter)
-    {
+
+    if (current.type == PipeType::Filter) {
         nextFiltered = true;
         current.filtered = true;
     }
 
-    int dx[] = { 0, 1, 0, -1 };
-    int dy[] = { -1, 0, 1, 0 };
+    const int dx[]{0, 1, 0, -1};
+    const int dy[]{-1, 0, 1, 0};
 
-    for (int i = 0; i < 4; i++)
-    {
-        int nx = x + dx[i];
-        int ny = y + dy[i];
+    for (int i = 0; i < 4; ++i) {
+        if (i == incoming) continue;
 
-        if (nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize)
-        {
-            Pipe& neighbor = grid[ny][nx];
+        const int nx = x + dx[i];
+        const int ny = y + dy[i];
+
+        if (nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize) {
+            const Pipe& neighbor = grid[ny][nx];
 
             if (HasConnection(current.type, current.rotation, i) &&
-                HasConnection(neighbor.type, neighbor.rotation, (i + 2) % 4))
-            {
-                CheckConnection(nx, ny, nextFiltered);
-            }
+                HasConnection(neighbor.type, neighbor.rotation, (i + 2) % 4)) {
+                CheckConnection(nx, ny, nextFiltered, (i + 2) % 4);
+                }
         }
     }
 }
+
 
 bool Game2::HasConnection(PipeType type, int rot, int dir) const
 {
@@ -493,7 +483,7 @@ void Game2::LoadFallbackLevel()
     grid[2][2] = { PipeType::Filter, 1, false, false };
     grid[3][2] = { PipeType::Corner, 3, false, false };
     grid[3][3] = { PipeType::Straight, 0, false, false };
-    grid[3][4] = { PipeType::Reservoir, 3, false, false };
+    grid[3][4] = { PipeType::Reservoir, 0, false, false };
 }
 
 void Game2::GenerateLevel()

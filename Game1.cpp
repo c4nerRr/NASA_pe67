@@ -410,12 +410,7 @@ void Game1::Draw() const
             button(_actionBtn, "RETURN TO BASE");
         }
         else {
-            button(
-                _actionBtn,
-                _currentCycle >= 5
-                    ? "COMPLETE MISSION"
-                    : "NEXT CHECK"
-            );
+            button(_actionBtn,_currentCycle >= 5 ? "COMPLETE MISSION" : "NEXT CHECK");
         }
     }
 }

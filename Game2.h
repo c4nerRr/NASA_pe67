@@ -5,6 +5,7 @@
 #include "IState.h"
 #include <vector>
 #include "raylib.h"
+#include "PipeDesign.h"
 
 enum class PipeType
 {
@@ -47,7 +48,11 @@ private:
     bool isHereOnce = false;
 
     static const int gridSize = 6;
-    Pipe grid[gridSize][gridSize];
+
+    Pipe grid[gridSize][gridSize]{};
+    PipeArt _art;
+    Rectangle _boardRect{};
+    float _uiScale = 1.0f;
 
     float _cellSize = 90.0f;
     float _startX = 0.0f;
@@ -60,7 +65,7 @@ private:
     void DrawGrid() const;
 
     void UpdateFlow();
-    void CheckConnection(int x, int y, bool isFiltered);
+    void CheckConnection(int x, int y, bool isFiltered, int incoming = -1);
     [[nodiscard]] bool HasConnection(PipeType type, int rot, int dir) const;
 
     void GenerateLevel();

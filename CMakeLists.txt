@@ -81,6 +81,8 @@ add_executable(NASA
         RadiationArt.h
         EnergyArt.cpp
         EnergyArt.h
+        PipeDesign.cpp
+        PipeDesign.h
 )
 
 add_custom_target(NASA_assets ALL
