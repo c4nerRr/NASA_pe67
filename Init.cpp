@@ -76,7 +76,9 @@ void Init::Run() {
                     game.Draw();
                 }
 
-                _profiler.DrawZapis();
+                if (game.GetCurrentState() != GameState::Game3) {
+                    _profiler.DrawZapis();
+                }
 
                 {
                     ProfilerTIME::ScopeMarker present("EndDrawing/Wait", _profiler);

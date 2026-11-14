@@ -59,6 +59,8 @@ add_executable(NASA
         GreenGarden.h
         AudioManager.cpp
         AudioManager.h
+        RadiationBase.cpp
+        RadiationBase.h
 )
 
 add_custom_target(NASA_assets ALL
