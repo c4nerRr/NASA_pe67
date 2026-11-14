@@ -5,6 +5,8 @@
 #include "IGame.h"
 #include "IState.h"
 #include <array>
+
+#include "GardenArt.h"
 #include "raylib.h"
 #include "GreenGarden.h"
 
@@ -49,6 +51,9 @@ private:
         float scale = 1.0f;
     };
 
+    GardenArt _art;
+    std::array<std::size_t, GreenGarden::BedCount> _flowerColors{};
+
     GreenGarden _garden;
     Layout _layout;
 
@@ -77,7 +82,7 @@ private:
     void Notify(const char* message);
 
     void DrawGarden() const;
-    void DrawPlant(Rectangle bounds, int frame) const;
+    void DrawPlant(Rectangle bounds, int frame, int bedIndex) const;
 
     static int PlantFrame(const GreenGarden::Bed& bed);
     static const char* BedHint(const GreenGarden::Bed& bed);

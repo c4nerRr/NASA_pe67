@@ -29,6 +29,7 @@ Game4::Game4() = default;
 Game4::~Game4() = default;
 
 void Game4::OnEnter() {
+    _art.Load();
     BuildLayout();
 
     if (IsFinished) {
@@ -92,6 +93,8 @@ void Game4::Update(float dt) {
 }
 
 void Game4::Draw() const {
+    GardenArt::DrawFill(_art.Background(),{0.0f,0.0f,static_cast<float>(GetScreenWidth()),static_cast<float>(GetScreenHeight())}
+);
     const auto w = static_cast<float>(GetScreenWidth());
     const auto h = static_cast<float>(GetScreenHeight());
 
@@ -118,27 +121,9 @@ void Game4::Draw() const {
         return;
     }
 
-    Label(
-        TextFormat(
-            "Day %d/%d   Water left: %d/%d   Reputation: %d",
-            _garden.Day(),
-            GreenGarden::MaxDays,
-            _garden.WaterLeft(),
-            GreenGarden::WaterPerDay,
-            _garden.Reputation()
-        ),
-        w * 0.27f,
-        h * 0.12f,
-        font,
-        RAYWHITE
-    );
+    Label(TextFormat("Day %d/%d   Water left: %d/%d   Reputation: %d",_garden.Day(),GreenGarden::MaxDays,_garden.WaterLeft(),GreenGarden::WaterPerDay,_garden.Reputation()),w * 0.27f,h * 0.12f,font,RAYWHITE);
 
-    Button(
-        _layout.water,
-        "WATER",
-        _tool == Tool::Water,
-        s
-    );
+    Button(_layout.water,"WATER",_tool == Tool::Water,s);
 
     Button(_layout.light,"LIGHT",_tool == Tool::Light,s);
 
@@ -151,33 +136,15 @@ void Game4::Draw() const {
         Label(_notice,(w - MeasureText(_notice, font)) * 0.5f,h * 0.79f,font,ORANGE);
     }
 
-    Label(
-        "SPACE - leave attempt",
-        w * 0.10f,
-        h * 0.94f,
-        font,
-        LIGHTGRAY
-    );
+    Label("SPACE - leave attempt",w * 0.10f,h * 0.94f,font,LIGHTGRAY);
 
     if (_phase == Phase::Night) {
-        DrawRectangle(
-            0,
-            0,
-            GetScreenWidth(),
-            GetScreenHeight(),
-            Color{5, 8, 25, 205}
-        );
+        DrawRectangle(0,0,GetScreenWidth(),GetScreenHeight(),Color{5, 8, 25, 205});
 
         constexpr const char* message =
             "NIGHT - checking the greenhouse...";
 
-        Label(
-            message,
-            (w - MeasureText(message, font)) * 0.5f,
-            h * 0.48f,
-            font,
-            RAYWHITE
-        );
+        Label(message,(w - MeasureText(message, font)) * 0.5f,h * 0.48f,font,RAYWHITE);
     }
 }
 
@@ -339,6 +306,23 @@ void Game4::ShowRules() {
 void Game4::StartGame() {
     _garden = GreenGarden{};
 
+    static_assert(GreenGarden::BedCount <= GardenDesign::colors.size());
+
+    std::array<std::size_t, GardenDesign::colors.size()> palette{};
+
+    for (std::size_t i = 0; i < palette.size(); ++i) {
+        palette[i] = i;
+    }
+
+    for (std::size_t i = 0; i < _flowerColors.size(); ++i) {
+        const auto pick = static_cast<std::size_t>(
+            GetRandomValue(static_cast<int>(i),static_cast<int>(palette.size()) - 1)
+        );
+
+        std::swap(palette[i], palette[pick]);
+        _flowerColors[i] = palette[i];
+    }
+
     _tool = Tool::None;
     _nightTime = 0.0f;
     _noticeTime = 0.0f;
@@ -497,41 +481,37 @@ void Game4::Notify(const char *message) {
 void Game4::DrawGarden() const {
      const float s = _layout.scale;
 
-    const int font =
-        std::max(10, static_cast<int>(22 * s));
+    const int font =std::max(10, static_cast<int>(22 * s));
 
-    // Общий фон всех трёх грядок.
-    // Позже здесь рисуется одна общая текстура.
-    DrawRectangleRec(
-        _layout.garden,
-        Color{29, 53, 43, 255}
-    );
 
     for (int i = 0; i < GreenGarden::BedCount; ++i) {
         const auto& bed = _garden.GetBed(i);
         const Rectangle r = _layout.beds[i];
+        GardenArt::DrawFill(_art.Soil(), r);
 
         const float x = r.x + 12 * s;
 
-        DrawRectangleLinesEx(
-            r,
-            2.0f,
-            bed.lightOn ? GOLD : DARKGREEN
-        );
+        DrawRectangleLinesEx(r,2.0f,bed.lightOn ? GOLD : DARKGREEN);
 
-        Label(
-            TextFormat("BED %d", i + 1),
-            x,
-            r.y + 12 * s,
-            font,
-            RAYWHITE
-        );
+        Label(TextFormat("BED %d", i + 1),x,r.y + 12 * s,font,RAYWHITE);
+
+        if (!bed.dead && !bed.Ready()) {
+            const float iconSize = 32.0f * s;
+            const float gap = 12.0f * s;
+
+            const Rectangle lightIcon{r.x + r.width - gap - iconSize,r.y + gap,iconSize,iconSize};
+
+            Rectangle waterIcon = lightIcon;
+            waterIcon.x -= iconSize + gap;
+
+            GardenArt::DrawFit(_art.Water(bed.Moisture() > 0),waterIcon);
+
+            GardenArt::DrawFit(_art.Light(bed.lightOn),lightIcon);
+        }
 
         const char* hint = BedHint(bed);
 
-        Label(
-            hint,
-            r.x + r.width - MeasureText(hint, font) - 12 * s,
+        Label(hint,r.x + r.width - MeasureText(hint, font) - 12 * s,
             r.y + 48 * s,
             font,
             bed.dead || bed.Moisture() >= 2 ? ORANGE : SKYBLUE
@@ -544,76 +524,26 @@ void Game4::DrawGarden() const {
             r.height * 0.35f
         };
 
-        DrawPlant(plant, PlantFrame(bed));
+        DrawPlant(plant, PlantFrame(bed), i);
 
-        Label(
-            TextFormat(
-                "Growth: %d/%d",
-                bed.growth,
-                GreenGarden::GrowthNeeded
-            ),
-            x,
-            r.y + r.height * 0.65f,
-            font,
-            RAYWHITE
-        );
+        Label(TextFormat("Growth: %d/%d",bed.growth,GreenGarden::GrowthNeeded),x,r.y + r.height * 0.65f,font,RAYWHITE);
 
         if (!bed.Ready() && !bed.dead) {
-            Label(
-                TextFormat(
-                    "Water: %d  (stored: %d)",
-                    bed.Moisture(),
-                    bed.storedWater ? 1 : 0
-                ),
-                x,
-                r.y + r.height * 0.73f,
-                font,
-                SKYBLUE
-            );
+            Label(TextFormat("Water: %d  (stored: %d)",bed.Moisture(),bed.storedWater ? 1 : 0),x,r.y + r.height * 0.73f,font,SKYBLUE);
 
-            Label(
-                bed.lightOn ? "Light: ON" : "Light: OFF",
-                x,
-                r.y + r.height * 0.81f,
-                font,
-                bed.lightOn ? GOLD : LIGHTGRAY
-            );
+            Label(bed.lightOn ? "Light: ON" : "Light: OFF",x,r.y + r.height * 0.81f,font,bed.lightOn ? GOLD : LIGHTGRAY);
 
             if (bed.dryDays > 0) {
-                Label(
-                    "Dry yesterday - water today!",
-                    x,
-                    r.y + r.height * 0.89f,
-                    font,
-                    ORANGE
-                );
+                Label("Dry yesterday - water today!",x,r.y + r.height * 0.89f,font,ORANGE);
             }
         }
     }
 }
 
-void Game4::DrawPlant(Rectangle bounds, int frame) const {
-    constexpr std::array<Color, 4> colors{
-        SKYBLUE,
-        LIME,
-        GOLD,
-        BROWN
-    };
-
-    constexpr std::array<const char*, 4> names{
-        "SEEDLINGS",
-        "GROWING",
-        "FULLY GROWN",
-        "WITHERED"
-    };
-
-    DrawRectangleRec(bounds, Fade(colors[frame], 0.18f));
-
-    DrawRectangleLinesEx(bounds,2.0f,colors[frame]);
-
-    const int size =std::max(10, static_cast<int>(24 * _layout.scale));
-    Label(names[frame], bounds.x + (bounds.width - MeasureText(names[frame], size)) * 0.5f,bounds.y + (bounds.height - size) * 0.5f,size,colors[frame]);
+void Game4::DrawPlant(Rectangle bounds, int frame, int bedIndex) const {
+    GardenArt::DrawFit(_art.Flower(_flowerColors[bedIndex], frame),bounds);
 }
+
 
 int Game4::PlantFrame(const GreenGarden::Bed &bed) {
     if (bed.dead) {

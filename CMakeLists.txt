@@ -75,6 +75,8 @@ add_executable(NASA
         GuideSptire.cpp
         GuideSptire.h
         MainMenuConfig.h
+        GardenArt.h
+        GardenArt.cpp
 )
 
 add_custom_target(NASA_assets ALL
