@@ -1,6 +1,3 @@
-//
-// Created by c4ner on 11/13/2026.
-//
 
 #ifndef NASA_SCANELIGHT_H
 #define NASA_SCANELIGHT_H

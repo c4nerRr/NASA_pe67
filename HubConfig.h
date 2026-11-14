@@ -1,6 +1,4 @@
-//
-// Created by c4ner on 11/12/2026.
-//
+
 
 #ifndef NASA_HUBCONFIG_H
 #define NASA_HUBCONFIG_H

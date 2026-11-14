@@ -1,6 +1,4 @@
-//
-// Created by c4ner on 11/11/2026.
-//
+
 
 #ifndef NASA_GAME3_H
 #define NASA_GAME3_H

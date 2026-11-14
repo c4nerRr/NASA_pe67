@@ -1,6 +1,3 @@
-//
-// Created by c4ner on 11/11/2026.
-//
 
 #include "Game4.h"
 
@@ -11,51 +8,18 @@
 namespace {
     constexpr float nightDuration = 1.0f;
 
-    void Label(
-        const char* text,
-        float x,
-        float y,
-        int size,
-        Color color
-    ) {
-        DrawText(
-            text,
-            static_cast<int>(x),
-            static_cast<int>(y),
-            size,
-            color
-        );
+    void Label(const char* text,float x,float y,int size,Color color) {
+        DrawText(text,static_cast<int>(x),static_cast<int>(y),size,color);
     }
 
-    void Button(
-        Rectangle rect,
-        const char* text,
-        bool selected,
-        float scale
-    ) {
-        const int size =
-            std::max(10, static_cast<int>(22 * scale));
+    void Button(Rectangle rect,const char* text,bool selected,float scale) {
+        const int size = std::max(10, static_cast<int>(22 * scale));
 
-        DrawRectangleRec(
-            rect,
-            selected
-                ? Color{55, 105, 145, 255}
-                : Color{35, 45, 60, 255}
-        );
+        DrawRectangleRec(rect, selected ? Color{55, 105, 145, 255} : Color{35, 45, 60, 255});
 
-        DrawRectangleLinesEx(
-            rect,
-            2.0f,
-            selected ? SKYBLUE : GRAY
-        );
+        DrawRectangleLinesEx(rect,2.0f,selected ? SKYBLUE : GRAY);
 
-        Label(
-            text,
-            rect.x + (rect.width - MeasureText(text, size)) * 0.5f,
-            rect.y + (rect.height - size) * 0.5f,
-            size,
-            RAYWHITE
-        );
+        Label(text,rect.x + (rect.width - MeasureText(text, size)) * 0.5f,rect.y + (rect.height - size) * 0.5f,size,RAYWHITE);
     }
 }
 
@@ -310,6 +274,7 @@ void Game4::ShowTheory() {
         "light without flooding the roots."
     });
 }
+
 
 void Game4::ShowRules() {
     GameManager::Instanse().ShowDialogue({

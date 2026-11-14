@@ -1,6 +1,3 @@
-//
-// Created by c4ner on 11/13/2026.
-//
 
 #ifndef NASA_LIGHTCONFIG_H
 #define NASA_LIGHTCONFIG_H

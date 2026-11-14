@@ -125,11 +125,11 @@ void Game2::Update(float dt)
                         UpdateFlow();
 
                         bool isWon = false;
-                        for (int y = 0; y < gridSize; y++)
+                        for (auto & y : grid)
                         {
-                            for (int x = 0; x < gridSize; x++)
+                            for (auto & x : y)
                             {
-                                if (grid[y][x].type == PipeType::Reservoir && grid[y][x].filtered)
+                                if (x.type == PipeType::Reservoir && x.filtered)
                                 {
                                     isWon = true;
                                 }
@@ -162,10 +162,7 @@ void Game2::Update(float dt)
 
 void Game2::Draw() const
 {
-    const Rectangle frame = {
-        GetScreenWidth() * 0.05f, GetScreenHeight() * 0.05f,
-        GetScreenWidth() * 0.90f, GetScreenHeight() * 0.90f
-    };
+    const Rectangle frame = {GetScreenWidth() * 0.05f, GetScreenHeight() * 0.05f, GetScreenWidth() * 0.90f, GetScreenHeight() * 0.90f};
 
     DrawRectangleRec(frame, DARKBLUE);
     DrawRectangleLinesEx(frame, 4.0f, RAYWHITE);
@@ -229,10 +226,21 @@ void Game2::DrawGrid() const
                     Vector2 end = center;
                     switch (i)
                     {
-                    case 0: end.y -= _cellSize / 2.0f; break;
-                    case 1: end.x += _cellSize / 2.0f; break;
-                    case 2: end.y += _cellSize / 2.0f; break;
-                    case 3: end.x -= _cellSize / 2.0f; break;
+                    case 0:
+                            end.y -= _cellSize / 2.0f;
+                            break;
+                    case 1:
+                            end.x += _cellSize / 2.0f;
+                            break;
+                    case 2:
+                            end.y += _cellSize / 2.0f;
+                            break;
+                    case 3:
+                            end.x -= _cellSize / 2.0f;
+                            break;
+
+                        default:
+                            break;
                     }
                     DrawLineEx(center, end, _cellSize * 0.15f, waterColor);
                 }
@@ -243,12 +251,12 @@ void Game2::DrawGrid() const
 
 void Game2::UpdateFlow()
 {
-    for (int y = 0; y < gridSize; y++)
+    for (auto & y : grid)
     {
-        for (int x = 0; x < gridSize; x++)
+        for (auto & x : y)
         {
-            grid[y][x].connected = false;
-            grid[y][x].filtered = false;
+            x.connected = false;
+            x.filtered = false;
         }
     }
 
@@ -351,9 +359,9 @@ bool Game2::GeneratePath(std::vector<Vector2>& outPath)
             if (nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize)
             {
                 bool visited = false;
-                for (size_t j = 0; j < outPath.size(); j++)
+                for (auto & j : outPath)
                 {
-                    if (static_cast<int>(outPath[j].x) == nx && static_cast<int>(outPath[j].y) == ny)
+                    if (static_cast<int>(j.x) == nx && static_cast<int>(j.y) == ny)
                     {
                         visited = true;
                         break;
@@ -378,14 +386,14 @@ bool Game2::GeneratePath(std::vector<Vector2>& outPath)
 
 bool Game2::TryGenerateLevel()
 {
-    for (int y = 0; y < gridSize; y++)
+    for (auto & y : grid)
     {
-        for (int x = 0; x < gridSize; x++)
+        for (auto & x : y)
         {
-            grid[y][x].type = PipeType::Empty;
-            grid[y][x].rotation = 0;
-            grid[y][x].connected = false;
-            grid[y][x].filtered = false;
+            x.type = PipeType::Empty;
+            x.rotation = 0;
+            x.connected = false;
+            x.filtered = false;
         }
     }
 
@@ -476,8 +484,8 @@ bool Game2::TryGenerateLevel()
 void Game2::LoadFallbackLevel()
 {
     for (auto & y : grid)
-        for (int x = 0; x < gridSize; x++)
-            y[x] = { PipeType::Empty, 0, false, false };
+        for (auto & x : y)
+            x = { PipeType::Empty, 0, false, false };
 
     grid[1][0] = { PipeType::Source, 0, false, false };
     grid[1][1] = { PipeType::Straight, 0, false, false };
@@ -490,7 +498,7 @@ void Game2::LoadFallbackLevel()
 
 void Game2::GenerateLevel()
 {
-    const int MAX_ATTEMPTS = 100;
+    constexpr int MAX_ATTEMPTS = 100;
     bool success = false;
 
     for (int attempt = 0; attempt < MAX_ATTEMPTS; ++attempt)
@@ -509,12 +517,12 @@ void Game2::GenerateLevel()
 
     for (auto & y : grid)
     {
-        for (int x = 0; x < gridSize; x++)
+        for (auto & x : y)
         {
-            if (y[x].type == PipeType::Empty)
+            if (x.type == PipeType::Empty)
             {
-                y[x].type = (GetRandomValue(0, 1) == 0) ? PipeType::Straight : PipeType::Corner;
-                y[x].rotation = GetRandomValue(0, 3);
+                x.type = (GetRandomValue(0, 1) == 0) ? PipeType::Straight : PipeType::Corner;
+                x.rotation = GetRandomValue(0, 3);
             }
         }
     }
@@ -540,9 +548,9 @@ void Game2::GenerateLevel()
 
         for (auto & y : grid)
         {
-            for (int x = 0; x < gridSize; x++)
+            for (auto & x : y)
             {
-                if (y[x].type == PipeType::Reservoir && y[x].filtered)
+                if (x.type == PipeType::Reservoir && x.filtered)
                 {
                     isSolved = true;
                 }

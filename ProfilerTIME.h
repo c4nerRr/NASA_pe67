@@ -1,6 +1,4 @@
-//
-// Created by c4ner on 11/11/2026.
-//
+
 
 #ifndef NASA_PROFILERTIME_H
 #define NASA_PROFILERTIME_H

@@ -1,6 +1,3 @@
-//
-// Created by c4ner on 11/14/2026.
-//
 
 #ifndef NASA_RADIATIONBASE_H
 #define NASA_RADIATIONBASE_H

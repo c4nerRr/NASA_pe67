@@ -1,6 +1,3 @@
-//
-// Created by c4ner on 11/11/2026.
-//
 
 #define WIN32_LEAN_AND_MEAN
 #define NOGDI

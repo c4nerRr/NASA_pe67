@@ -1,6 +1,3 @@
-//
-// Created by c4ner on 11/14/2026.
-//
 
 #ifndef NASA_PAUSEMENU_H
 #define NASA_PAUSEMENU_H

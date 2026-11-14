@@ -1,6 +1,3 @@
-//
-// Created by c4ner on 11/14/2026.
-//
 #pragma once
 #include "raylib.h"
 #include <string>
