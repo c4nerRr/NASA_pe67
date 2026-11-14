@@ -6,6 +6,7 @@
 
 #include "AudioManager.h"
 #include "IGame.h"
+#include "InputManager.h"
 
 GameManager::GameManager() = default;
 
@@ -34,6 +35,12 @@ void GameManager::ChangeState(GameState newState) {
 
 void GameManager::Update(float dt) {
     AudioManager::Instance().Update();
+
+    if (_currentState == GameState::Hub && InputManager::PressESC()) {
+        PauseHub();
+        return;
+       }
+
     if (_ui.IsDialogueActive()) {
         _ui.Update(dt);
         return;
@@ -63,12 +70,23 @@ void GameManager::RegisterState(GameState id, std::unique_ptr<IState> state) {
 }
 
 void GameManager::Draw() const {
+
+    const bool paused = _currentState == GameState::Pause;
+    if (paused) {
+        const auto it = _states.find(GameState::Pause);
+        if (it != _states.end()) {
+            it->second->Draw();
+        }
+    }
+
     const auto it = _states.find(_currentState);
 
     if (it != _states.end()) {
         it->second->Draw();
     }
-    _ui.Draw();
+    if (!paused) {
+        _ui.Draw();
+    }
 }
 
 void GameManager::ClearStates() {
@@ -94,4 +112,27 @@ bool GameManager::ShowDialogue(const std::vector<std::string> &messages) {
 
 bool GameManager::IsDialogueActive() const {
     return _ui.IsDialogueActive();
+}
+
+void GameManager::PauseHub() {
+    if (_currentState != GameState::Hub) {
+        return;
+    }
+
+    const auto it = _states.find(GameState::Pause);
+
+    if (it == _states.end()) {
+        TraceLog(LOG_WARNING, "Pause state is not registered");
+        return;
+    }
+    _currentState = GameState::Pause;
+    it->second->OnEnter();
+
+}
+
+void GameManager::ResumeHub() {
+    if (_currentState != GameState::Pause) {
+        return;
+    }
+    _currentState = GameState::Hub;
 }

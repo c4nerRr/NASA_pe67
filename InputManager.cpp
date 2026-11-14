@@ -21,3 +21,7 @@ bool InputManager::IsLeftMouseDown() {
 Vector2 InputManager::MousePosition() {
     return GetMousePosition();
 }
+
+bool InputManager::PressESC() {
+    return IsKeyPressed(KEY_ESCAPE);
+}

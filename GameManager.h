@@ -47,6 +47,9 @@ public:
 
     [[nodiscard]] bool IsDialogueActive() const;
 
+    void PauseHub();
+    void ResumeHub();
+
 };
 
 

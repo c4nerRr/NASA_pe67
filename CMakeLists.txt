@@ -61,6 +61,8 @@ add_executable(NASA
         AudioManager.h
         RadiationBase.cpp
         RadiationBase.h
+        PauseMenu.cpp
+        PauseMenu.h
 )
 
 add_custom_target(NASA_assets ALL

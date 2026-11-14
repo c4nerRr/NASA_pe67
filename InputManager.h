@@ -13,6 +13,7 @@ public:
     static bool PressSPACE();
     static bool IsLeftMouseDown();
     static Vector2 MousePosition();
+    static bool PressESC();
 };
 
 

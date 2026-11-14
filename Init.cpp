@@ -17,6 +17,7 @@
 #include "raylib.h"
 #include "Hub.h"
 #include "AudioManager.h"
+#include "PauseMenu.h"
 
 namespace {
     constexpr float maxDeltaTime = 0.05f;
@@ -53,6 +54,7 @@ void Init::Run() {
             game.RegisterState(GameState::Game2, std::make_unique<Game2>());
             game.RegisterState(GameState::Game3, std::make_unique<Game3>());
             game.RegisterState(GameState::Game4, std::make_unique<Game4>());
+            game.RegisterState( GameState::Pause,std::make_unique<PauseMenu>());
 
             game.ChangeState(GameState::Menu);
 
