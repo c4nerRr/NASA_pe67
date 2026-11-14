@@ -77,6 +77,8 @@ add_executable(NASA
         MainMenuConfig.h
         GardenArt.h
         GardenArt.cpp
+        RadiationArt.cpp
+        RadiationArt.h
 )
 
 add_custom_target(NASA_assets ALL

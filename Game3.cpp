@@ -26,16 +26,10 @@ namespace {
         Label(text,bounds.x + (bounds.width - MeasureText(text, size)) * 0.5f,bounds.y + (bounds.height - size) * 0.5f,size,color);
     }
 
-    void Button(Rectangle bounds,const char* text,float scale,bool enabled) {
+    void ImageButton(Texture2D texture,Rectangle bounds,bool enabled) {
         const bool hovered =enabled &&CheckCollisionPointRec(InputManager::MousePosition(),bounds);
-
-        const Color background = !enabled  ? Color{28, 32, 43, 255} : hovered? Color{70, 89, 125, 255}: Color{43, 57, 84, 255};
-
-        DrawRectangleRec(bounds, background);
-
-        DrawRectangleLinesEx(bounds,2.0f,enabled ? SKYBLUE : DARKGRAY);
-
-        CenteredText(text,bounds,FontSize(26, scale),enabled ? RAYWHITE : GRAY);
+        const Color tint = !enabled ? Color{110, 110, 110, 255}: hovered? Color{220, 220, 220, 255}: WHITE;
+        RadiationArt::Draw(texture, bounds, tint);
     }
 
     void RadiationSymbol(Vector2 center, float radius, Color color) {
@@ -77,14 +71,15 @@ void Game3::BuildLayout() {
     _layout.dangerBar = {w * 0.10f, h * 0.195f,w * 0.28f, h * 0.018f};
 
     _layout.modules = {
-        Rectangle{w * 0.13f, h * 0.52f,w * 0.20f, h * 0.20f},
-        Rectangle{w * 0.40f, h * 0.38f,w * 0.20f, h * 0.20f},
-        Rectangle{w * 0.67f, h * 0.52f,w * 0.20f, h * 0.20f}
+        Rectangle{w * 0.13f, h * 0.46f,w * 0.20f, h * 0.24f},
+        Rectangle{w * 0.40f, h * 0.37f,w * 0.20f, h * 0.24f},
+        Rectangle{w * 0.67f, h * 0.46f,w * 0.20f, h * 0.24f}
     };
 
-    _layout.switchPower = {w * 0.40f, h * 0.82f,w * 0.20f, h * 0.07f};
-
-    _layout.help = {w * 0.79f, h * 0.82f,w * 0.10f, h * 0.07f};
+    _layout.switchPower = RadiationArt::Fit(_art.Switch(),{w * 0.40f, h * 0.82f,w * 0.20f, h * 0.07f}
+);
+    _layout.help = RadiationArt::Fit(_art.Rules(),{w * 0.79f, h * 0.82f,w * 0.10f, h * 0.07f}
+);
 }
 
 void Game3::ShowTheory() {
@@ -376,51 +371,90 @@ void Game3::DrawModules() const {
 }
 
 void Game3::DrawModule(Module module, Rectangle bounds) const {
-     constexpr const char* names[] = {"GREENHOUSE","HABITAT","LABORATORY"};
+     constexpr std::array<const char*, RadiationBase::ModuleCount> names{
+        "GREENHOUSE",
+        "HABITAT",
+        "LABORATORY"
+    };
 
-    constexpr const char* letters[] = {"T","D","L"};
-
-    const int index = static_cast<int>(module);
     const float s = _layout.scale;
 
     const bool powered = module == _base.PoweredModule();
     const bool threatened = module == _base.ThreatenedModule();
 
-    const Color border = powered ? GOLD : Color{105, 129, 158, 255};
+    const bool damaged =threatened &&
+        (_phase == Phase::Storm || _phase == Phase::Result) &&
+        _base.LastStorm() == RadiationBase::StormResult::Missed;
 
-    const Vector2 roofLeft{bounds.x,bounds.y};
+    const auto state = damaged
+        ? RadiationArt::State::Damaged
+        : powered
+            ? RadiationArt::State::Powered
+            : RadiationArt::State::Normal;
 
-    const Vector2 roofTop{bounds.x + bounds.width * 0.5f,bounds.y - bounds.height * 0.22f};
+    const auto texture = _art.Building(module, state);
 
-    const Vector2 roofRight{bounds.x + bounds.width,bounds.y};
+    RadiationArt::Draw(
+        texture,
+        RadiationArt::Fit(texture, bounds)
+    );
 
-    const float lineWidth = std::max(2.0f, 3.0f * s);
+    CenteredText(
+        names[static_cast<std::size_t>(module)],
+        {
+            bounds.x,
+            bounds.y - 44 * s,
+            bounds.width,
+            24 * s
+        },
+        FontSize(22, s),
+        RAYWHITE
+    );
 
-    DrawLineEx(roofLeft, roofTop, lineWidth, border);
-    DrawLineEx(roofTop, roofRight, lineWidth, border);
-
-    DrawRectangleRec(bounds,powered? Color{57, 54, 38, 255}: Color{28, 40, 58, 255});
-
-    DrawRectangleLinesEx(bounds, lineWidth, border);
-
-    CenteredText(names[index],{bounds.x,bounds.y + bounds.height * 0.10f,bounds.width,bounds.height * 0.18f},FontSize(24, s),RAYWHITE);
-
-    CenteredText(letters[index],{bounds.x,bounds.y + bounds.height * 0.32f,bounds.width,bounds.height * 0.32f},FontSize(56, s),border);
-
-    CenteredText(powered ? "SHIELD: ON" : "SHIELD: OFF",{bounds.x,bounds.y + bounds.height * 0.75f,bounds.width,bounds.height * 0.16f},FontSize(22, s),powered ? GOLD : LIGHTGRAY);
-
-    const float symbolY =bounds.y - bounds.height * 0.30f;
+    const float symbolY = bounds.y - 12 * s;
 
     if (powered) {
-        PowerSymbol({bounds.x + bounds.width * 0.84f,symbolY},21.0f * s);
+        PowerSymbol(
+            {bounds.x + bounds.width * 0.90f, symbolY},
+            14 * s
+        );
     }
 
     if (threatened) {
-        const float pulse =1.0f + 0.08f * std::sin(_visualTime * 4.0f);
+        const float pulse =
+            1.0f + 0.08f * std::sin(_visualTime * 4.0f);
 
-        RadiationSymbol({bounds.x + bounds.width * 0.16f,symbolY},23.0f * s * pulse,LIME);
+        RadiationSymbol(
+            {bounds.x + bounds.width * 0.10f, symbolY},
+            16 * s * pulse,
+            LIME
+        );
+    }
 
-        CenteredText(powered ? "PRIORITY: SHIELD READY" : "PRIORITY: NEEDS POWER",{bounds.x - bounds.width * 0.10f,bounds.y + bounds.height * 1.06f,bounds.width * 1.20f,bounds.height * 0.14f},FontSize(20, s),powered ? LIME : ORANGE);
+    CenteredText(
+        damaged ? "STORM HIT" : powered ? "SHIELD: ON" : "SHIELD: OFF",
+        {
+            bounds.x,
+            bounds.y + bounds.height + 6 * s,
+            bounds.width,
+            22 * s
+        },
+        FontSize(20, s),
+        damaged ? ORANGE : powered ? GOLD : LIGHTGRAY
+    );
+
+    if (threatened) {
+        CenteredText(
+            damaged ? "PRIORITY MODULE HIT" : powered ? "PRIORITY: SHIELD READY" : "PRIORITY: NEEDS POWER",
+            {
+                bounds.x - bounds.width * 0.10f,
+                bounds.y + bounds.height + 32 * s,
+                bounds.width * 1.20f,
+                22 * s
+            },
+            FontSize(18, s),
+            powered ? LIME : ORANGE
+        );
     }
 }
 
@@ -552,9 +586,7 @@ void Game3::Draw() const {
     const auto h = static_cast<float>(_layout.height);
     const float s = _layout.scale;
 
-    DrawRectangleRec(_layout.panel,Color{15, 23, 39, 255});
-
-    DrawRectangleLinesEx(_layout.panel,2.0f,Color{95, 122, 160, 255});
+    RadiationArt::Draw(_art.Background(), {0, 0, w, h});
 
     CenteredText("RADIATION ALERT",{w * 0.20f, h * 0.085f, w * 0.60f, h * 0.05f},FontSize(36, s),RAYWHITE);
 
@@ -569,8 +601,8 @@ void Game3::Draw() const {
 
     const bool canInteract = _phase == Phase::Preparation;
 
-    Button(_layout.switchPower, "SWITCH", s, canInteract);
-    Button(_layout.help, "RULES", s, canInteract);
+    ImageButton(_art.Switch(), _layout.switchPower, canInteract);
+    ImageButton(_art.Rules(), _layout.help, canInteract);
 
     CenteredText("SPACE - leave attempt during preparation",{w * 0.10f, h * 0.94f, w * 0.80f, h * 0.035f},FontSize(20, s),LIGHTGRAY);
 
@@ -580,6 +612,7 @@ void Game3::Draw() const {
 }
 
 void Game3::OnEnter() {
+    _art.Load();
     BuildLayout();
 
     if (IsFinished) {

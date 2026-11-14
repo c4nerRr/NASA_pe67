@@ -6,6 +6,7 @@
 
 #include "IGame.h"
 #include "IState.h"
+#include "RadiationArt.h"
 #include "RadiationBase.h"
 #include "raylib.h"
 
@@ -43,6 +44,7 @@ class Game3 : public IGame, public IState{
     static constexpr int MinChangeInterval = 3;
     static constexpr int MaxChangeInterval = 7;
 
+    RadiationArt _art;
     RadiationBase _base;
     Layout _layout;
 
