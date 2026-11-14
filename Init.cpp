@@ -16,6 +16,7 @@
 #include "AudioManager.h"
 #include "FontManager.h"
 #include "PauseMenu.h"
+#include "Setting.h"
 
 namespace {
     constexpr float maxDeltaTime = 0.05f;
@@ -54,6 +55,7 @@ void Init::Run() {
             game.RegisterState(GameState::Game3, std::make_unique<Game3>());
             game.RegisterState(GameState::Game4, std::make_unique<Game4>());
             game.RegisterState( GameState::Pause,std::make_unique<PauseMenu>());
+            game.RegisterState(GameState::Settings, std::make_unique<Setting>());
 
             game.ChangeState(GameState::Menu);
 

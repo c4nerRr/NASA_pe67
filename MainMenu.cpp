@@ -1,11 +1,11 @@
 //
 // Created by c4ner on 11/11/2026.
 //
-
 #include "MainMenu.h"
 
 #include "GameManager.h"
 #include "InputManager.h"
+#include "FontManager.h"
 
 MainMenu::LayOut MainMenu::GetLayOut() const { //NOLINT
     constexpr float mainWidth = 340.0f;
@@ -66,7 +66,7 @@ void MainMenu::Update(float dt) {
         game.ChangeState(GameState::Hub);
     }
     else if (CheckCollisionPointRec(mousePosition, layout.options)) {
-        //TODO:тут сеттингс
+        game.ChangeState(GameState::Settings);
     }
     else if (CheckCollisionPointRec(mousePosition, layout.exit)) {
         game.RequestQuit();

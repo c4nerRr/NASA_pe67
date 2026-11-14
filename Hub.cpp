@@ -10,10 +10,6 @@
 
 #include "InputManager.h"
 
-
-//         Hub ->
-//Objects3D && HubPortal
-
 namespace {
     Matrix MakeSceneTransform(const Model& moon,const HubConfig& config) {
         const BoundingBox bounds = GetModelBoundingBox(moon);

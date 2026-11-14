@@ -7,7 +7,7 @@
 #include "IState.h"
 #include "UI2DAll.h"
 
-enum class GameState {Boot, Menu, Hub, Game1, Game2, Game3, Game4, Pause};
+enum class GameState {Boot, Menu, Hub, Game1, Game2, Game3, Game4, Pause, Settings};
 
 class GameManager {
 
