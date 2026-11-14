@@ -3,6 +3,8 @@
 #include "IState.h"
 #include <string>
 #include "raylib.h"
+#include <array>
+#include "EnergyArt.h"
 
 enum class Phase
 {
@@ -36,6 +38,7 @@ public:
 private:
     void StartNewAttempt();
     void UpdateLayout();
+    [[nodiscard]] Rectangle SliderHandle(int index) const;
     void HandleSliders(Vector2 mousePos);
     void CalculateCycleResult();
     void GenerateCycleEvent();
@@ -57,6 +60,9 @@ private:
     std::string _eventMessage;
     std::string _resultMessage;
 
+    EnergyArt _art;
+    float _uiScale = 1.0f;
+    std::array<Rectangle, subsystemsCount> _iconRects{};
     Rectangle _frame;
     Rectangle _sliderRects[subsystemsCount];
     Rectangle _minusBtns[subsystemsCount];

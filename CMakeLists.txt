@@ -79,6 +79,8 @@ add_executable(NASA
         GardenArt.cpp
         RadiationArt.cpp
         RadiationArt.h
+        EnergyArt.cpp
+        EnergyArt.h
 )
 
 add_custom_target(NASA_assets ALL
