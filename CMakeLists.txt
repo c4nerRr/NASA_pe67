@@ -72,6 +72,9 @@ add_executable(NASA
         FontManager.cpp
         FontManager.h
         UseInterFont.h
+        GuideSptire.cpp
+        GuideSptire.h
+        MainMenuConfig.h
 )
 
 add_custom_target(NASA_assets ALL

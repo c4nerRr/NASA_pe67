@@ -7,6 +7,7 @@
 #include <string>
 
 #include "FontManager.h"
+#include "GuideSptire.h"
 
 namespace {
     constexpr Color panelColor{15, 24, 42, 245};
@@ -80,8 +81,8 @@ MissionPanel::Layout MissionPanel::GetLayout(
     };
 
     layout.mascot = {
-        w * 0.84f, h * 0.81f,
-        w * 0.10f, h * 0.13f
+        w * 0.83f, h * 0.75f,
+    w * 0.14f, h * 0.22f
     };
 
     layout.endDay = {
@@ -198,7 +199,7 @@ void MissionPanel::Draw(
 
     if (mission.CurrentPhase() == Mission::Phase::Restoration) {
         if (!dialogueActive) {
-            Button(layout.mascot, "GUIDE", s);
+            GuideSprite::Draw(layout.mascot, false);
         }
 
         return;
@@ -331,7 +332,7 @@ void MissionPanel::Draw(
 
     if (!dialogueActive && !confirmationOpen) {
         Button(layout.endDay, "END DAY", s);
-        Button(layout.mascot, "GUIDE", s);
+        GuideSprite::Draw(layout.mascot, false);
     }
 
     if (confirmationOpen && !dialogueActive) {

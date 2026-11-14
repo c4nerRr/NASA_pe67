@@ -15,6 +15,7 @@
 #include "Hub.h"
 #include "AudioManager.h"
 #include "FontManager.h"
+#include "GuideSptire.h"
 #include "PauseMenu.h"
 #include "Setting.h"
 
@@ -32,6 +33,7 @@ void Init::Run() {
     SetTargetFPS(60); //1000 мс / 60 ≈ 16,67 мс
 
     FontManager::Load();
+    GuideSprite::Load();
     AudioManager::Instance().Init();
 
     auto& game = GameManager::Instanse();
@@ -98,5 +100,6 @@ void Init::Run() {
     }
     AudioManager::Instance().Close();
     FontManager::Unload();
+    GuideSprite::Unload();
     CloseWindow();
 }

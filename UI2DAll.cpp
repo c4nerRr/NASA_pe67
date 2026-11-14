@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "FontManager.h"
+#include "GuideSptire.h"
 #include "InputManager.h"
 
 namespace {
@@ -217,6 +218,14 @@ void UI2DAll::Draw() const {
 
     DrawRectangleRec(_panel, _config.panel);
     DrawRectangleLinesEx(_panel, 2.0f, _config.border);
+
+    const auto screenWidth = static_cast<float>(GetScreenWidth());
+    const auto screenHeight = static_cast<float>(GetScreenHeight());
+
+    const float catWidth = screenWidth * 0.18f;
+    const float catHeight = screenHeight * 0.30f;
+
+    GuideSprite::Draw({_panel.x + _panel.width - catWidth,_panel.y - catHeight,catWidth,catHeight},true);
 
     DrawText("MISSION CONTROL",static_cast<int>(_titlePosition.x),static_cast<int>(_titlePosition.y),_smallFontSize,_config.border);
 
