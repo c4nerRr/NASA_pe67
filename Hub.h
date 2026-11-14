@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "HubConfig.h"
+#include "HubMission.h"
 #include "HubOutline.h"
 #include "HubPortal.h"
 #include "IState.h"
@@ -29,6 +30,7 @@ class Hub : public IState {
     int _hoveredPortal = -1;
     HubOutline _outline;
     ScaneLight _lighting;
+    HubMission _mission;
 
 public:
     Hub(const Model& moon, const std::vector<PortalModel>& port, const HubConfig& config);

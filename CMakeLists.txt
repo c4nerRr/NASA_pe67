@@ -69,6 +69,9 @@ add_executable(NASA
         MissionPanel.h
         HubMission.cpp
         HubMission.h
+        FontManager.cpp
+        FontManager.h
+        UseInterFont.h
 )
 
 add_custom_target(NASA_assets ALL
@@ -77,6 +80,16 @@ add_custom_target(NASA_assets ALL
         "$<TARGET_FILE_DIR:NASA>/assets"
         VERBATIM
 )
+
+if (MSVC)
+    target_compile_options(NASA PRIVATE
+            "/FI${CMAKE_CURRENT_SOURCE_DIR}/UseInterFont.h"
+    )
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(NASA PRIVATE
+            -include "${CMAKE_CURRENT_SOURCE_DIR}/UseInterFont.h"
+    )
+endif()
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 

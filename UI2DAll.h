@@ -12,7 +12,6 @@ struct DialogueConfig {
     float heightRatio = 0.22f;
     float bottomMarginRatio = 0.03f;
 
-    // Размеры оформления относительно высоты окна 1080.
     float referenceHeight = 1080.0f;
     float padding = 24.0f;
     int fontSize = 26;
@@ -63,7 +62,7 @@ class UI2DAll {
     void BuildLayout();
     void AddMessage(const std::string& message);
 
-    public:
+public:
     explicit UI2DAll(DialogueConfig config = {});
     ~UI2DAll();
 

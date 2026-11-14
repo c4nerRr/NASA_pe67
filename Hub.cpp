@@ -38,9 +38,18 @@ namespace {
 
         return MatrixMultiply(result,MatrixTranslate(config.moonCenter.x,config.moonCenter.y,config.moonCenter.z));
     }
+    std::vector<GameState> MissionStations(const std::vector<PortalModel>& portals) {
+        std::vector<GameState> stations;
+        stations.reserve(portals.size());
+
+        for (const auto& portal : portals) {
+            stations.push_back(portal.target);
+        }
+        return stations;
+    }
 }
 
-Hub::Hub( const Model& moon, const std::vector<PortalModel>& port, const HubConfig& config): _sceneTransform(MakeSceneTransform(moon, config)),_objects3D(moon, _sceneTransform),_camera(config.camera),_doubleSided(config.doubleSided), _lighting(config.lighting) {
+Hub::Hub( const Model& moon, const std::vector<PortalModel>& port, const HubConfig& config): _sceneTransform(MakeSceneTransform(moon, config)),_objects3D(moon, _sceneTransform),_camera(config.camera),_doubleSided(config.doubleSided), _lighting(config.lighting),  _mission(MissionStations(port)) {
     _portals.reserve(port.size());
 
     for (const auto& portal : port) {
@@ -54,6 +63,9 @@ Hub::~Hub() = default;
 
 void Hub::Update(float dt) {
     _hoveredPortal = -1;
+    if (_mission.Update()) {
+        return;
+    }
     const Ray ray = GetScreenToWorldRay(InputManager::MousePosition(),_camera);
 
     float nearestDistance = std::numeric_limits<float>::infinity();
@@ -115,24 +127,28 @@ void Hub::Draw() const {
     if (_hoveredPortal >= 0) {
         _outline.Draw(_camera,_objects3D,_portals,_hoveredPortal,_doubleSided);
     }
+    _mission.Draw();
 }
 
 void Hub::OnEnter() {
     _hoveredPortal = -1;
 
-    if (_introShown) {
-        return;
-    }
+   // if (_introShown) {
+     //   return;
+    //}
 
     _introShown = GameManager::Instanse().ShowDialogue({
-        "Welcome to the Moon, explorer! "
-        "I will be your mission guide.",
+         "Welcome to the Moon, explorer! "
+         "I will be your mission guide.",
 
-        "There are four stations on this Moon. "
-        "Each station contains a different space challenge. "
-        "Choose any station to begin.",
+         "Day 1: repair every station by completing its challenge. "
+         "Choose any station to begin.",
 
-        "Complete all four challenges to finish your mission. "
-        "Good luck, explorer!"
-    });
+         "Click the guide at the bottom-right whenever "
+         "you need your next step.",
+
+         "After repairs, click the guide to begin Day 2. "
+         "Manage power, food and water until the supply ship arrives. "
+         "The guide will wait for your click before moving on."
+     });
 }

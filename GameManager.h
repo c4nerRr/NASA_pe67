@@ -47,6 +47,8 @@ public:
     void PauseHub();
     void ResumeHub();
 
+    [[nodiscard]] bool IsChallengeFinished(GameState state) const;
+
 };
 
 

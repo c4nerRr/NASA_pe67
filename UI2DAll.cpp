@@ -1,9 +1,8 @@
-
-
 #include "UI2DAll.h"
 
 #include <sstream>
 
+#include "FontManager.h"
 #include "InputManager.h"
 
 namespace {
@@ -50,7 +49,7 @@ namespace {
 }
 
 void UI2DAll::BuildLayout() {
-    _font = GetFontDefault();
+    _font = FontManager::Get(FontStyle::Regular);
 
     const auto width = static_cast<float>(GetScreenWidth());
     const auto height = static_cast<float>(GetScreenHeight());
@@ -95,7 +94,7 @@ void UI2DAll::AddMessage(const std::string &message) {
 
     const float fontScale =static_cast<float>(_fontSize) / _font.baseSize; //NOLINT
 
-    const auto spacing = static_cast<float>(_fontSize / 10); //NOLINT
+    constexpr float spacing = 0.0f;
     for (std::size_t first = 0; first < rows.size();
          first += rowsPerPage) {
         Page page;
@@ -247,4 +246,3 @@ void UI2DAll::Draw() const {
 
     DrawText(hint,static_cast<int>(_hintPosition.x),static_cast<int>(_hintPosition.y),_smallFontSize,_config.border);
 }
-

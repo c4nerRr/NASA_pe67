@@ -14,6 +14,7 @@
 #include "raylib.h"
 #include "Hub.h"
 #include "AudioManager.h"
+#include "FontManager.h"
 #include "PauseMenu.h"
 
 namespace {
@@ -29,6 +30,7 @@ void Init::Run() {
     SetExitKey(KEY_NULL);
     SetTargetFPS(60); //1000 мс / 60 ≈ 16,67 мс
 
+    FontManager::Load();
     AudioManager::Instance().Init();
 
     auto& game = GameManager::Instanse();
@@ -63,6 +65,7 @@ void Init::Run() {
 
                 {
                     ProfilerTIME::ScopeMarker upd("Update", _profiler);
+                    AudioManager::Instance().Update();
                     game.Update(dt);
                 }
 
@@ -92,5 +95,6 @@ void Init::Run() {
         _assets.Clear();
     }
     AudioManager::Instance().Close();
+    FontManager::Unload();
     CloseWindow();
 }

@@ -33,15 +33,17 @@ void GameManager::ChangeState(GameState newState) {
 void GameManager::Update(float dt) {
     AudioManager::Instance().Update();
 
-    if (_currentState == GameState::Hub && InputManager::PressESC()) {
-        PauseHub();
-        return;
-       }
-
     if (_ui.IsDialogueActive()) {
         _ui.Update(dt);
         return;
     }
+
+    if (_currentState == GameState::Hub &&
+        InputManager::PressESC()) {
+
+        PauseHub();
+        return;
+        }
 
     const auto it = _states.find(_currentState);
 
@@ -67,21 +69,13 @@ void GameManager::RegisterState(GameState id, std::unique_ptr<IState> state) {
 }
 
 void GameManager::Draw() const {
-
-    const bool paused = _currentState == GameState::Pause;
-    if (paused) {
-        const auto it = _states.find(GameState::Pause);
-        if (it != _states.end()) {
-            it->second->Draw();
-        }
-    }
-
     const auto it = _states.find(_currentState);
 
     if (it != _states.end()) {
         it->second->Draw();
     }
-    if (!paused) {
+
+    if (_currentState != GameState::Pause) {
         _ui.Draw();
     }
 }
@@ -132,4 +126,17 @@ void GameManager::ResumeHub() {
         return;
     }
     _currentState = GameState::Hub;
+}
+
+bool GameManager::IsChallengeFinished(GameState state) const {
+    const auto it = _states.find(state);
+
+    if (it == _states.end()) {
+        return false;
+    }
+
+    const auto* game =
+        dynamic_cast<const IGame*>(it->second.get());
+
+    return game != nullptr && game->GetFinished();
 }
