@@ -63,6 +63,12 @@ add_executable(NASA
         RadiationBase.h
         PauseMenu.cpp
         PauseMenu.h
+        Mission.cpp
+        Mission.h
+        MissionPanel.cpp
+        MissionPanel.h
+        HubMission.cpp
+        HubMission.h
 )
 
 add_custom_target(NASA_assets ALL
