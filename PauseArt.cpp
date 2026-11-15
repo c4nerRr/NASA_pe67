@@ -13,7 +13,7 @@ namespace {
     constexpr std::array<std::array<const char*, 2>, 3> files{{
         {"apply-2.png", "apply-5.png"},
         {"apply-1.png", "apply-4.png"},
-        {"apply.png", "apply-3.png"}
+        {"apply_old.png", "apply-3.png"}
     }};
 }
 

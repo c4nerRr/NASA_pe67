@@ -34,11 +34,11 @@ void Setting::OnEnter()
 {
     if (!isLoaded)
     {
-        bgTexture = LoadTexture("assets/settings/settings.png");
+        bgTexture = LoadTexture("assets/settings/settings_old.png");
         panelTexture = LoadTexture("assets/settings/settings_box.png");
         btnApplyTexture = LoadTexture("assets/settings/apply.png");
         btnBackTexture = LoadTexture("assets/settings/goback.png");
-        sliderBarTexture = LoadTexture("assets/settings/drag_sound.png");
+        sliderBarTexture = LoadTexture("assets/settings/Line_7.png");
         sliderHandleTexture = LoadTexture("assets/settings/click_sound.png");
         isLoaded = true;
     }
@@ -46,15 +46,21 @@ void Setting::OnEnter()
     float sw = GetScreenWidth();
     float sh = GetScreenHeight();
 
-    panelRec = { sw / 2 - 200, sh / 2 - 150, 400, 300 };
-    toggleBtnRec = { panelRec.x + 50, panelRec.y + 40, 150, 40 };
-    sliderBarRec = { panelRec.x + 50, panelRec.y + 150, 300, 15 };
+    panelRec = { sw / 2 - 240, sh / 2 - 180, 480, 360 };
 
-    float handleWidth = 20;
-    sliderHandleRec = { sliderBarRec.x + (sliderBarRec.width - handleWidth) * volume, sliderBarRec.y - 15, handleWidth, 45 };
+    toggleBtnRec = { panelRec.x + 60, panelRec.y + 70, 200, 40 };
+    const float sliderWidth = panelRec.width * 0.58f;
+    const float sliderHeight = sliderWidth * static_cast<float>(sliderBarTexture.height) / sliderBarTexture.width;
+    sliderBarRec = {panelRec.x + 60, panelRec.y + 200, sliderWidth, sliderHeight};
 
-    btnApplyRec = { panelRec.x, panelRec.y + panelRec.height + 20, 150, 50 };
-    btnBackRec = { panelRec.x + 250, panelRec.y + panelRec.height + 20, 150, 50 };
+    float handleWidth = 24;
+    sliderHandleRec = { sliderBarRec.x + (sliderBarRec.width - handleWidth) * volume, sliderBarRec.y - 18, handleWidth, 54 };
+
+    const float btnW = panelRec.width * 0.415f;
+    const float btnH = btnW * static_cast<float>(btnApplyTexture.height) / btnApplyTexture.width;
+
+    btnBackRec = { panelRec.x + 27, panelRec.y + panelRec.height + 25, btnW, btnH };
+    btnApplyRec = { panelRec.x + panelRec.width - btnW - 27, panelRec.y + panelRec.height + 25, btnW, btnH };
 
     prevVolume = volume;
     prevSoundOn = isSoundOn;
@@ -112,27 +118,27 @@ void Setting::Update(float deltaTime)
 
 void Setting::Draw() const
 {
+    ClearBackground(BLACK);
+
     Rectangle screenRec = { 0, 0, (float)GetScreenWidth(), (float)GetScreenHeight() };
     DrawTexturePro(bgTexture, { 0, 0, (float)bgTexture.width, (float)bgTexture.height }, screenRec, { 0, 0 }, 0.0f, WHITE);
 
     DrawTexturePro(panelTexture, { 0, 0, (float)panelTexture.width, (float)panelTexture.height }, panelRec, { 0, 0 }, 0.0f, WHITE);
 
     std::string toggleText = isSoundOn ? "On/Off: ON" : "On/Off: OFF";
-    DrawText(toggleText.c_str(), toggleBtnRec.x, toggleBtnRec.y, 30, DARKBLUE);
+    DrawText(toggleText.c_str(), toggleBtnRec.x, toggleBtnRec.y, 36, DARKBLUE);
 
     DrawTexturePro(sliderBarTexture, { 0, 0, (float)sliderBarTexture.width, (float)sliderBarTexture.height }, sliderBarRec, { 0, 0 }, 0.0f, WHITE);
-
     DrawTexturePro(sliderHandleTexture, { 0, 0, (float)sliderHandleTexture.width, (float)sliderHandleTexture.height }, sliderHandleRec, { 0, 0 }, 0.0f, WHITE);
 
     std::string volText = std::to_string((int)(volume * 100)) + "%";
-    DrawText(volText.c_str(), sliderBarRec.x + sliderBarRec.width + 15, sliderBarRec.y - 5, 20, DARKBLUE);
-
-    Color applyTint = CheckCollisionPointRec(GetMousePosition(), btnApplyRec) ? GRAY : WHITE;
-    DrawTexturePro(btnApplyTexture, { 0, 0, (float)btnApplyTexture.width, (float)btnApplyTexture.height }, btnApplyRec, { 0, 0 }, 0.0f, applyTint);
+    DrawText(volText.c_str(), sliderBarRec.x + sliderBarRec.width + 20, sliderBarRec.y - 5, 24, DARKBLUE);
 
     Color backTint = CheckCollisionPointRec(GetMousePosition(), btnBackRec) ? GRAY : WHITE;
     DrawTexturePro(btnBackTexture, { 0, 0, (float)btnBackTexture.width, (float)btnBackTexture.height }, btnBackRec, { 0, 0 }, 0.0f, backTint);
 
+    Color applyTint = CheckCollisionPointRec(GetMousePosition(), btnApplyRec) ? GRAY : WHITE;
+    DrawTexturePro(btnApplyTexture, { 0, 0, (float)btnApplyTexture.width, (float)btnApplyTexture.height }, btnApplyRec, { 0, 0 }, 0.0f, applyTint);
     DrawCredits();
 }
 

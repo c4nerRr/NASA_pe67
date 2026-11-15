@@ -618,9 +618,7 @@ void Game3::OnEnter() {
     if (IsFinished) {
         _phase = Phase::Result;
 
-        GameManager::Instanse().ShowDialogue({
-            "This radiation protection mission is already complete!"
-        });
+        GameManager::Instanse().ShowDialogue({"This radiation protection mission is already complete!"});
 
         return;
     }
