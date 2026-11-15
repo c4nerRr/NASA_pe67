@@ -214,47 +214,64 @@ void Game4::BuildLayout() {
 
 void Game4::ShowTheory() {
     _theoryShown = GameManager::Instanse().ShowDialogue({
-       "SPACE GARDENER: Imagine helping astronauts grow a fresh meal! "
-       "Our game puts you in charge of a pretend Moon greenhouse. "
-       "The ideas behind it come from real NASA plant research.",
+      "SPACE GARDENER: Ever dreamed of helping astronauts "
+        "grow a salad on the Moon? "
+        "You're officially in charge of our pretend "
+        "Moon greenhouse, inspired by real NASA plant science!",
 
-       "Astronauts on the International Space Station have grown crops "
-       "such as lettuce and radishes. Scientists study these gardens "
-       "to learn how crews could grow some food on longer journeys.",
+        "Astronauts on the International Space Station "
+        "have already grown crunchy lettuce and radishes! "
+        "Scientists study these space crops to figure out "
+        "how crews can farm on epic deep-space trips.",
 
-       "Much of a space crew's food arrives in packages from Earth. "
-       "A garden can add fresh vegetables to the menu. Caring for living "
-       "plants can also make a spacecraft feel a little more like home.",
+        "Most space food arrives packed up from Earth, "
+        "so a garden brings awesome fresh veggies to the table! "
+        "Plus, taking care of green, living plants "
+        "makes a spaceship feel way more like home!",
 
-       "NASA has a small space garden called Veggie. Some plants grow "
-       "in special fabric pillows filled with a growing material and "
-       "fertilizer. These help support the roots and supply nutrients.",
+        "NASA actually has a tiny space garden called Veggie! "
+        "Plants snuggle into special fabric pillows "
+        "packed with growing material and fertilizer "
+        "to feed their roots.",
 
-       "A plant needs light to make its own food. Space gardens can use "
-       "LED lamps. Red and blue light are useful for growing plants, "
-       "so some space gardens glow pink or purple!",
+        "A plant needs light to make its own food. "
+        "Space gardens can use LED lamps. "
+        "Red and blue light are useful for growing plants, "
+        "so some space gardens glow pink or purple!",
 
-       "Roots need water, but they also need oxygen. Flooding the area "
-       "around the roots can leave too little air for them. More water "
-       "is not always better: a healthy garden needs a balance.",
+        "Roots love water, but they also need oxygen. "
+        "Flooding the area around the roots "
+        "can leave too little air for them. "
+        "More water isn't always better. "
+        "It's all about finding that sweet balance!",
 
-       "On the space station, water behaves differently in microgravity. "
-       "Scientists test ways to bring water and air to the roots. "
-       "The Moon has gravity too; a Moon garden is a different challenge.",
+        "In microgravity on the space station, "
+        "water floats around and acts super weird! "
+        "Scientists test ways to bring water and air "
+        "to the roots. "
+        "The Moon has gravity too; "
+        "a Moon garden is a different challenge.",
 
-       "Some NASA plant chambers use sensors and cameras to watch the "
-       "plants. Equipment controls conditions such as temperature and "
-       "moisture. Astronauts and scientists check how the plants respond.",
+        "Some NASA plant chambers use smart sensors "
+        "and cameras to keep an eye on the greens. "
+        "Equipment controls conditions "
+        "such as temperature and moisture. "
+        "Astronauts and scientists check "
+        "how the plants respond.",
 
-       "Students on Earth have helped test plants for future space "
-       "gardens. You can think like a scientist too: look at each plant, "
-       "notice what it needs, and check what happened after your care.",
+        "Kids and students back on Earth have even helped "
+        "test plants for future space farms! "
+        "You can think like a scientist too: "
+        "look at each plant, notice what it needs, "
+        "and check what happened after your care.",
 
-       "In our game, water portions, fast growth and the 50 percent "
-       "overwatering risk are made-up rules. Real plants do not follow "
-       "a coin toss. The real lesson is to provide enough water and "
-       "light without flooding the roots."
-        });
+        "In our game, water portions, fast growth "
+        "and the 50 percent overwatering risk "
+        "are made-up rules. "
+        "Real plants do not follow a coin toss. "
+        "The real lesson is to provide enough water "
+        "and light without flooding the roots."
+    });
 }
 
 

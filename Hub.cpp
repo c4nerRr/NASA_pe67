@@ -129,22 +129,28 @@ void Hub::Draw() const {
 void Hub::OnEnter() {
     _hoveredPortal = -1;
 
-   // if (_introShown) {
-     //   return;
-    //}
+   if (_introShown) {
+        return;
+    }
 
     _introShown = GameManager::Instanse().ShowDialogue({
-         "Welcome to the Moon, explorer! "
-         "I will be your mission guide.",
+        "Welcome to the Moon, rookie! "
+       "I'm your mission guide, and trust me, "
+       "we're going to make a great team.",
 
-         "Day 1: repair every station by completing its challenge. "
-         "Choose any station to begin.",
+       "Day 1: Let's get this base shining! "
+       "Repair every station by beating its challenge. "
+       "Go ahead and choose any station to start the fun.",
 
-         "Click the guide at the bottom-right whenever "
-         "you need your next step.",
+       "Lost in space? No worries! "
+       "Just click on me down in the bottom-right "
+       "whenever you need a little help.",
 
-         "After repairs, click the guide to begin Day 2. "
-         "Manage power, food and water until the supply ship arrives. "
-         "The guide will wait for your click before moving on."
+       "Once all four stations are repaired, "
+       "I'll meet you back here and explain Day 2! "
+       "We'll keep the power, food, and water flowing "
+       "until our supply ship lands. "
+       "Take your time reading - Day 2 starts "
+       "when you close my briefing!"
      });
 }

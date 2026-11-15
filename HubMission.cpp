@@ -40,6 +40,14 @@ bool HubMission::Update() {
         return true;
     }
 
+    if (
+        _mission.CurrentPhase() == Mission::Phase::Restoration &&
+        Progress().Ready()
+    ) {
+        TalkToGuide();
+        return true;
+    }
+
     const Vector2 mouse = InputManager::MousePosition();
 
     if (InputManager::PressLeftMouse()) {
@@ -124,7 +132,8 @@ void HubMission::TalkToGuide() {
                 "Stations restored: " +
                 std::to_string(progress.repaired) + "/" +
                 std::to_string(progress.total) + ". "
-                "Return to me after repairing every station."
+                "Keep going, rookie! Once every station is repaired, "
+                "I'll explain Day 2 automatically when you're back here."
             });
 
             return;
@@ -133,8 +142,13 @@ void HubMission::TalkToGuide() {
         const auto& rules = _mission.Rules();
 
         if (manager.ShowDialogue({
-            "All stations are repaired! "
-            "Close this briefing to begin Day 2.",
+            "All four stations repaired! Amazing work, rookie! "
+                "Day 1 is complete, and it's time for Day 2. "
+                "The repair challenges are finished. "
+                "Your next job is to manage the base "
+                "until our supply ship arrives. "
+                "I'll explain the plan now. "
+                "Close this briefing when you're ready to begin!",
 
             "Your goal: keep crew condition at " +
             std::to_string(rules.supplies.crew) + "/" +

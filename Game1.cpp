@@ -478,12 +478,24 @@ void Game1::ShowTheory()
 {
     GameManager::Instanse().ShowDialogue({
         "Mission: Power Supply Restoration.",
-        "Energy is a strictly limited resource. It is measured in energy units.",
-        "The station runs on solar panels and batteries. You must allocate the power.",
-        "Oxygen and Heating are critical for crew survival.",
-        "Greenhouse and Lighting are secondary. Their shutdown is not fatal.",
-        "Be prepared for space weather events: storms and sudden cold."
-        });
+
+        "Energy is super precious around here. "
+        "We measure every drop in energy units.",
+
+        "The station runs on solar panels and batteries. "
+        "You must allocate the power.",
+
+        "Keep Oxygen and Heating running at all costs. "
+        "Our crew literally can't live without them!",
+
+        "The Greenhouse and Lighting can take a quick nap "
+        "if things get tight. It won't hurt anyone "
+        "in this challenge.",
+
+        "Stay sharp for wild space weather: "
+        "storms and sudden deep freezes "
+        "love to crash the party!"
+    });
 }
 
 void Game1::ShowRules()

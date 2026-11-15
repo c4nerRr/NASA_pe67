@@ -82,31 +82,41 @@ void Game3::BuildLayout() {
 
 void Game3::ShowTheory() {
     _theoryShown = GameManager::Instanse().ShowDialogue({
-       "RADIATION ALERT: A Moon base needs more than air, water "
-       "and food. Its crew also needs protection from space radiation.",
+       "RADIATION ALERT! Turns out a Moon base needs "
+       "more than just snacks, water, and fresh air - "
+       "our crew needs serious protection "
+       "from space radiation!",
 
-       "Earth has a thick atmosphere and a global magnetic field "
-       "that help protect us. The Moon has almost no atmosphere "
-       "and no global magnetic field like Earth's.",
+       "Back home, Earth wraps us in a thick atmosphere "
+       "and a magnetic shield. "
+       "Out here on the Moon? Almost no atmosphere "
+       "and no global magnetic field like Earth's "
+       "to save the day!",
 
-       "Some solar eruptions accelerate particles to very high "
-       "energies. These particles can damage cells and DNA, "
-       "making radiation protection important for astronauts.",
+       "Big solar eruptions can fire super-fast particles "
+       "that can damage cells and DNA, "
+       "so radiation shielding is a must "
+       "for every astronaut.",
 
-       "Protective material between people and incoming particles "
-       "can reduce exposure. NASA describes using available supplies "
-       "to improve a spacecraft shelter. Lunar soil, called regolith, "
-       "could also help shield shelters on the Moon.",
+       "Putting solid stuff between us and those "
+       "particles really helps! "
+       "NASA talks about using spare supplies "
+       "to beef up shelters. "
+       "Lunar soil, called regolith, could also help "
+       "shield a Moon shelter like a protective blanket.",
 
-       "NASA teams monitor space weather and radiation detectors. "
-       "Their recommendations can include moving into better-shielded "
-       "areas or postponing a spacewalk.",
+       "Down on Earth, NASA keeps an eye on space weather. "
+       "Their recommendations can include moving "
+       "into better-shielded areas "
+       "or postponing a spacewalk.",
 
-       "Our switchable shields, short countdowns and danger percentages "
-       "are made-up game rules. Zero danger means you completed this "
-       "challenge; it does not mean radiation has disappeared from "
-       "the Moon. The lesson is to notice warnings and prepare protection."
-        });
+       "Now, our quick countdowns, toggle shields, "
+       "and danger meters are just fun game rules. "
+       "Hitting zero danger means you crushed "
+       "the challenge, not that Moon radiation vanished! "
+       "The lesson is to notice warnings "
+       "and prepare protection."
+   });
 }
 
 void Game3::ShowRules() {

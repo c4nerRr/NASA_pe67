@@ -63,11 +63,14 @@ void Game2::ShowRules()
 
 void Game2::ShowWin()
 {
-    GameManager::Instanse().ShowDialogue({
-        "Fantastic work, explorer!",
-        "The life support plumbing is fully restored and water purification is operating at 100% capacity.",
+   GameManager::Instanse().ShowDialogue({
+        "Fantastic work, rookie!",
+
+        "The life support plumbing is good as new, "
+        "and water purification is pumping at a full 100%!",
+
         "Returning you back to the Hub..."
-        });
+    });
 }
 
 void Game2::Update(float dt)
