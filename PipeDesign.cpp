@@ -4,7 +4,6 @@
 #include <array>
 #include <filesystem>
 
-
 namespace {
     constexpr auto folder = "assets/game2";
     constexpr std::array<const char*, 3> suffixes{"", "_dirty", "_water"};

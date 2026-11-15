@@ -5,6 +5,7 @@
 
 #include "GameManager.h"
 #include "InputManager.h"
+#include "PauseArt.h"
 
 namespace {
     void CenteredText(const char* text,Rectangle bounds,int size,Color color) {
@@ -16,41 +17,43 @@ namespace {
 PauseMenu::Layout PauseMenu::GetLayout() const {
     const auto w = static_cast<float>(GetScreenWidth());
     const auto h = static_cast<float>(GetScreenHeight());
+    const float scale = std::min(w / 1920.0f, h / 1080.0f);
+
+    const auto panel = _art.Panel();
+    const float panelWidth = panel.width * scale;
+    const float panelHeight = panel.height * scale;
 
     Layout layout;
+    layout.panel = {(w - panelWidth) * 0.5f, (h - panelHeight) * 0.5f, panelWidth, panelHeight};
 
-    layout.scale = std::min(w / 1920.0f,h / 1080.0f);
+    const auto place = [&](PauseArt::Button button, float y) {
+        const auto texture = _art.GetButton(button);
+        const float width = texture.width * scale;
+        const float height = texture.height * scale;
 
-    const float s = layout.scale;
+        return Rectangle{layout.panel.x + (panelWidth - width) * 0.5f, layout.panel.y + y * scale, width, height};
+    };
 
-    const float panelWidth = 520.0f * s;
-    const float panelHeight = 460.0f * s;
+    layout.resume = place(PauseArt::Button::Resume, 200.0f);
+    layout.menu = place(PauseArt::Button::Menu, 330.0f);
+    layout.quit = place(PauseArt::Button::Quit, 460.0f);
 
-    layout.panel = {(w - panelWidth) * 0.5f,(h - panelHeight) * 0.5f,panelWidth,panelHeight};
-
-    const float buttonX = layout.panel.x + 60.0f * s;
-    const float buttonWidth = panelWidth - 120.0f * s;
-    const float buttonHeight = 64.0f * s;
-
-    layout.resume = {buttonX,layout.panel.y + 140.0f * s,buttonWidth,buttonHeight};
-    layout.menu = {buttonX,layout.panel.y + 222.0f * s,buttonWidth,buttonHeight};
-    layout.quit = {buttonX,layout.panel.y + 304.0f * s,buttonWidth,buttonHeight};
     return layout;
 }
 
-void PauseMenu::DrawButton(Rectangle bounds, const char *text, float scale) const {
-    const bool hovered = CheckCollisionPointRec(InputManager::MousePosition(),bounds);
-
-    DrawRectangleRec(bounds,hovered ? Color{60, 80, 115, 255} : Color{34, 46, 70, 255});
-
-    DrawRectangleLinesEx(bounds,2.0f,hovered ? SKYBLUE : Color{105, 125, 160, 255});
-
-    CenteredText(text,bounds,std::max(12, static_cast<int>(26.0f * scale)),RAYWHITE);
+void PauseMenu::DrawButton(Rectangle bounds, PauseArt::Button button) const {
+    const bool hovered = CheckCollisionPointRec(InputManager::MousePosition(), bounds);
+    PauseArt::Draw(_art.GetButton(button, hovered), bounds);
 }
+
 
 PauseMenu::PauseMenu() = default;
 
 PauseMenu::~PauseMenu() = default;
+
+void PauseMenu::OnEnter() {
+   _art.Load();
+}
 
 void PauseMenu::Update(float dt) {
     auto& game = GameManager::Instanse();
@@ -64,38 +67,27 @@ void PauseMenu::Update(float dt) {
         return;
     }
 
-    const Vector2 mouse = InputManager::MousePosition();
-    const Layout layout = GetLayout();
+    const auto mouse = InputManager::MousePosition();
+    const auto layout = GetLayout();
 
     if (CheckCollisionPointRec(mouse, layout.resume)) {
         game.ResumeHub();
-        return;
     }
-
-    if (CheckCollisionPointRec(mouse, layout.menu)) {
+    else if (CheckCollisionPointRec(mouse, layout.menu)) {
         game.ChangeState(GameState::Menu);
-        return;
     }
-
-    if (CheckCollisionPointRec(mouse, layout.quit)) {
+    else if (CheckCollisionPointRec(mouse, layout.quit)) {
         game.RequestQuit();
     }
 }
 
 void PauseMenu::Draw() const {
-    const Layout layout = GetLayout();
-    const float s = layout.scale;
+    const auto layout = GetLayout();
 
-    DrawRectangle(0,0,GetScreenWidth(),GetScreenHeight(),Color{0, 0, 0, 165});
+    PauseArt::Draw(_art.Background(), {0, 0, static_cast<float>(GetScreenWidth()), static_cast<float>(GetScreenHeight())});
+    PauseArt::Draw(_art.Panel(), layout.panel);
 
-    DrawRectangleRec(layout.panel,Color{18, 25, 42, 250});
-
-    DrawRectangleLinesEx(layout.panel,2.0f,Color{125, 153, 195, 255});
-    CenteredText("PAUSED",{layout.panel.x,layout.panel.y + 36.0f * s,layout.panel.width,60.0f * s},std::max(16, static_cast<int>(40.0f * s)),RAYWHITE);
-
-    DrawButton(layout.resume, "RESUME", s);
-    DrawButton(layout.menu, "MAIN MENU", s);
-    DrawButton(layout.quit, "QUIT GAME", s);
-
-    CenteredText("ESC - resume",{layout.panel.x,layout.panel.y + 400.0f * s,layout.panel.width,30.0f * s},std::max(10, static_cast<int>(20.0f * s)),LIGHTGRAY);
+    DrawButton(layout.resume, PauseArt::Button::Resume);
+    DrawButton(layout.menu, PauseArt::Button::Menu);
+    DrawButton(layout.quit, PauseArt::Button::Quit);
 }
