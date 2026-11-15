@@ -1,5 +1,4 @@
 
-
 #ifndef NASA_GAME4_H
 #define NASA_GAME4_H
 #include "IGame.h"
@@ -86,6 +85,8 @@ private:
 
     static int PlantFrame(const GreenGarden::Bed& bed);
     static const char* BedHint(const GreenGarden::Bed& bed);
+
+    Texture2D _plashka{};
 };
 
 

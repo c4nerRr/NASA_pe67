@@ -1,4 +1,3 @@
-
 #include "Init.h"
 
 #include <algorithm>
@@ -16,6 +15,7 @@
 #include "AudioManager.h"
 #include "FontManager.h"
 #include "GuideSptire.h"
+#include "InputManager.h"
 #include "PauseMenu.h"
 #include "Setting.h"
 
@@ -28,9 +28,9 @@ Init::~Init() = default;
 
 
 void Init::Run() {
-    InitWindow(1920,1080, "NASA");
+    InitWindow(1920, 1080, "NASA");
     SetExitKey(KEY_NULL);
-    SetTargetFPS(60); //1000 мс / 60 ≈ 16,67 мс
+    SetTargetFPS(60);
 
     FontManager::Load();
     GuideSprite::Load();
@@ -43,12 +43,12 @@ void Init::Run() {
             const std::filesystem::path root = GetApplicationDirectory();
             AudioManager::Instance().PlayBackgroundMusic((root / "assets" / "Nasa.ogg").string());
 
-            const Model& moon = _assets.Load( (root / _config.moonPath).string(), _config.emissionAsAlbedo);
+            const Model& moon = _assets.Load((root / _config.moonPath).string(), _config.emissionAsAlbedo);
             std::vector<PortalModel> portals;
 
-            for (const auto&[path, target] : _config.portals) {
-                const Model& model = _assets.Load((root / path).string(),_config.emissionAsAlbedo);
-                portals.push_back({&model, target});
+            for (const auto& [path, target] : _config.portals) {
+                const Model& model = _assets.Load((root / path).string(), _config.emissionAsAlbedo);
+                portals.push_back({ &model, target });
             }
             game.RegisterState(GameState::Menu, std::make_unique<MainMenu>());
             game.RegisterState(GameState::Hub, std::make_unique<Hub>(moon, portals, _config));
@@ -56,10 +56,17 @@ void Init::Run() {
             game.RegisterState(GameState::Game2, std::make_unique<Game2>());
             game.RegisterState(GameState::Game3, std::make_unique<Game3>());
             game.RegisterState(GameState::Game4, std::make_unique<Game4>());
-            game.RegisterState( GameState::Pause,std::make_unique<PauseMenu>());
+            game.RegisterState(GameState::Pause, std::make_unique<PauseMenu>());
             game.RegisterState(GameState::Settings, std::make_unique<Setting>());
 
             game.ChangeState(GameState::Menu);
+
+
+            Shader spaceShader = LoadShader(nullptr, (root / "assets" / "shaders" / "space2.fs").string().c_str());
+            const int timeLoc = GetShaderLocation(spaceShader, "iTime");
+            const int resLoc = GetShaderLocation(spaceShader, "iResolution");
+            const int mouseLoc = GetShaderLocation(spaceShader, "iMouse");
+            float runTime = 0.0f;
 
             while (!WindowShouldClose() && !game.ShouldQuit()) {
                 _profiler.BeginFrame();
@@ -76,8 +83,21 @@ void Init::Run() {
                 {
                     ProfilerTIME::ScopeMarker draw("RenderCPU", _profiler);
 
+                    runTime += dt;
+                    const float resolution[3] = { (float)GetScreenWidth(), (float)GetScreenHeight(), 1.0f };
+                    const Vector2 mp = InputManager::MousePosition();
+                    const float mouse[4] = { mp.x, (float)GetScreenHeight() - mp.y, 0.0f, 0.0f };
+
+                    SetShaderValue(spaceShader, timeLoc, &runTime, SHADER_UNIFORM_FLOAT);
+                    SetShaderValue(spaceShader, resLoc, resolution, SHADER_UNIFORM_VEC3);
+                    SetShaderValue(spaceShader, mouseLoc, mouse, SHADER_UNIFORM_VEC4);
+
                     BeginDrawing();
-                    ClearBackground({8,4,26,100});
+                    ClearBackground({ 8, 4, 26, 255 });
+
+                    BeginShaderMode(spaceShader);
+                    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), WHITE);
+                    EndShaderMode();
 
                     game.Draw();
                 }
@@ -91,9 +111,12 @@ void Init::Run() {
                     EndDrawing();
                 }
             }
+            UnloadShader(spaceShader);
         }
-        catch(const std::exception& error) {
-            TraceLog(LOG_ERROR, "%s" ,error.what());
+
+
+        catch (const std::exception& error) {
+            TraceLog(LOG_ERROR, "%s", error.what());
         }
         game.ClearStates();
         _assets.Clear();

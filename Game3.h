@@ -1,5 +1,4 @@
 
-
 #ifndef NASA_GAME3_H
 #define NASA_GAME3_H
 #include <array>
@@ -11,7 +10,7 @@
 #include "raylib.h"
 
 
-class Game3 : public IGame, public IState{
+class Game3 : public IGame, public IState {
 
     using Module = RadiationBase::Module;
 
@@ -77,7 +76,9 @@ class Game3 : public IGame, public IState{
     void DrawModule(Module module, Rectangle bounds) const;
     void DrawStorm() const;
 
-    public:
+    Texture2D _plashka{};
+
+public:
     Game3();
     ~Game3() override;
 

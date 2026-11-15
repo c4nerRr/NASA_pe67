@@ -72,4 +72,6 @@ private:
 
     int _draggedSliderIndex = -1;
     bool _criticalWarningAcknowledged = false;
+
+    Texture2D _plashka{};
 };

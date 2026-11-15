@@ -14,21 +14,21 @@
 
 namespace {
     int FontSize(int referenceSize, float scale) {
-        return std::max(10,static_cast<int>(referenceSize * scale));
+        return std::max(10, static_cast<int>(referenceSize * scale));
     }
 
-    void Label(const char* text,float x,float y,int size,Color color
+    void Label(const char* text, float x, float y, int size, Color color
     ) {
-        DrawText(text,static_cast<int>(x),static_cast<int>(y),size,color);
+        DrawText(text, static_cast<int>(x), static_cast<int>(y), size, color);
     }
 
-    void CenteredText(const char* text,Rectangle bounds,int size,Color color) {
-        Label(text,bounds.x + (bounds.width - MeasureText(text, size)) * 0.5f,bounds.y + (bounds.height - size) * 0.5f,size,color);
+    void CenteredText(const char* text, Rectangle bounds, int size, Color color) {
+        Label(text, bounds.x + (bounds.width - MeasureText(text, size)) * 0.5f, bounds.y + (bounds.height - size) * 0.5f, size, color);
     }
 
-    void ImageButton(Texture2D texture,Rectangle bounds,bool enabled) {
-        const bool hovered =enabled &&CheckCollisionPointRec(InputManager::MousePosition(),bounds);
-        const Color tint = !enabled ? Color{110, 110, 110, 255}: hovered? Color{220, 220, 220, 255}: WHITE;
+    void ImageButton(Texture2D texture, Rectangle bounds, bool enabled) {
+        const bool hovered = enabled && CheckCollisionPointRec(InputManager::MousePosition(), bounds);
+        const Color tint = !enabled ? Color{ 110, 110, 110, 255 } : hovered ? Color{ 220, 220, 220, 255 } : WHITE;
         RadiationArt::Draw(texture, bounds, tint);
     }
 
@@ -36,7 +36,7 @@ namespace {
         for (int i = 0; i < 3; ++i) {
             const float angle = -90.0f + i * 120.0f;
 
-            DrawRing(center,radius * 0.38f,radius,angle,angle + 60.0f,12,color);
+            DrawRing(center, radius * 0.38f, radius, angle, angle + 60.0f, 12, color);
         }
 
         DrawCircleV(center, radius * 0.19f, color);
@@ -51,7 +51,7 @@ namespace {
         };
 
         for (int i = 0; i < 3; ++i) {
-            DrawLineEx(points[i],points[i + 1],std::max(2.0f, radius * 0.22f),GOLD);
+            DrawLineEx(points[i], points[i + 1], std::max(2.0f, radius * 0.22f), GOLD);
         }
     }
 }
@@ -63,12 +63,12 @@ void Game3::BuildLayout() {
     const auto w = static_cast<float>(_layout.width);
     const auto h = static_cast<float>(_layout.height);
 
-    _layout.scale = std::min(w / 1920.0f,h / 1080.0f
+    _layout.scale = std::min(w / 1920.0f, h / 1080.0f
     );
 
-    _layout.panel = {w * 0.06f, h * 0.07f,w * 0.88f, h * 0.86f};
+    _layout.panel = { w * 0.06f, h * 0.07f,w * 0.88f, h * 0.86f };
 
-    _layout.dangerBar = {w * 0.10f, h * 0.195f,w * 0.28f, h * 0.018f};
+    _layout.dangerBar = { w * 0.10f, h * 0.25f, w * 0.28f, h * 0.018f };
 
     _layout.modules = {
         Rectangle{w * 0.13f, h * 0.46f,w * 0.20f, h * 0.24f},
@@ -76,10 +76,10 @@ void Game3::BuildLayout() {
         Rectangle{w * 0.67f, h * 0.46f,w * 0.20f, h * 0.24f}
     };
 
-    _layout.switchPower = RadiationArt::Fit(_art.Switch(),{w * 0.40f, h * 0.82f,w * 0.20f, h * 0.07f}
-);
-    _layout.help = RadiationArt::Fit(_art.Rules(),{w * 0.79f, h * 0.82f,w * 0.10f, h * 0.07f}
-);
+    _layout.switchPower = RadiationArt::Fit(_art.Switch(), { w * 0.40f, h * 0.82f,w * 0.20f, h * 0.07f }
+    );
+    _layout.help = RadiationArt::Fit(_art.Rules(), { w * 0.79f, h * 0.82f,w * 0.10f, h * 0.07f }
+    );
 }
 
 void Game3::ShowTheory() {
@@ -108,67 +108,67 @@ void Game3::ShowTheory() {
        "are made-up game rules. Zero danger means you completed this "
        "challenge; it does not mean radiation has disappeared from "
        "the Moon. The lesson is to notice warnings and prepare protection."
-   });
+        });
 }
 
 void Game3::ShowRules() {
-      GameManager::Instanse().ShowDialogue({
-        TextFormat(
-            "YOUR MISSION: Reduce the danger indicator from %.1f "
-            "percent to zero. Reaching %.1f percent loses the attempt.",
-            RadiationBase::InitialDanger,
-            RadiationBase::MaximumDanger
-        ),
+    GameManager::Instanse().ShowDialogue({
+      TextFormat(
+          "YOUR MISSION: Reduce the danger indicator from %.1f "
+          "percent to zero. Reaching %.1f percent loses the attempt.",
+          RadiationBase::InitialDanger,
+          RadiationBase::MaximumDanger
+      ),
 
-        "THREE MODULES: T is the greenhouse, D is the habitat, "
-        "and L is the laboratory. Power is available for only "
-        "one module's shield at a time.",
+      "THREE MODULES: T is the greenhouse, D is the habitat, "
+      "and L is the laboratory. Power is available for only "
+      "one module's shield at a time.",
 
-        "READ THE SYMBOLS: The green radiation symbol marks the "
-        "module that needs protection. The gold lightning symbol "
-        "shows which module currently receives power.",
+      "READ THE SYMBOLS: The green radiation symbol marks the "
+      "module that needs protection. The gold lightning symbol "
+      "shows which module currently receives power.",
 
-        "SWITCH: Click SWITCH to move power from T to D, "
-        "then to L, then back to T. Power stays where you leave "
-        "it between storms.",
+      "SWITCH: Click SWITCH to move power from T to D, "
+      "then to L, then back to T. Power stays where you leave "
+      "it between storms.",
 
-        TextFormat(
-            "COUNTDOWN: Each round gives you %.0f seconds. "
-            "The first forecast change happens after %.0f seconds. "
-            "After that, the green symbol moves to another module "
-            "every %d to %d seconds.",
-            PreparationDuration,
-            FirstThreatChange,
-            MinChangeInterval,
-            MaxChangeInterval
-        ),
+      TextFormat(
+          "COUNTDOWN: Each round gives you %.0f seconds. "
+          "The first forecast change happens after %.0f seconds. "
+          "After that, the green symbol moves to another module "
+          "every %d to %d seconds.",
+          PreparationDuration,
+          FirstThreatChange,
+          MinChangeInterval,
+          MaxChangeInterval
+      ),
 
-        TextFormat(
-            "FINAL WARNING: During the last %.0f seconds, "
-            "the green symbol stops moving. You can still switch "
-            "power until the countdown reaches zero.",
-            LockDuration
-        ),
+      TextFormat(
+          "FINAL WARNING: During the last %.0f seconds, "
+          "the green symbol stops moving. You can still switch "
+          "power until the countdown reaches zero.",
+          LockDuration
+      ),
 
-        TextFormat(
-            "STORM CHECK: At zero, the powered module must match "
-            "the marked module. A correct shield reduces danger "
-            "by %.1f percentage points. A wrong shield adds %.1f.",
-            RadiationBase::SuccessReduction,
-            RadiationBase::FailureIncrease
-        ),
+      TextFormat(
+          "STORM CHECK: At zero, the powered module must match "
+          "the marked module. A correct shield reduces danger "
+          "by %.1f percentage points. A wrong shield adds %.1f.",
+          RadiationBase::SuccessReduction,
+          RadiationBase::FailureIncrease
+      ),
 
-        "ONLY THE FINAL POSITION COUNTS: Earlier switches do not "
-        "earn points or cause damage. During the short storm "
-        "animation, the result is already fixed.",
+      "ONLY THE FINAL POSITION COUNTS: Earlier switches do not "
+      "earn points or cause damage. During the short storm "
+      "animation, the result is already fixed.",
 
-        "KEEP GOING: A mistake does not always end the attempt. "
-        "Rounds continue until danger reaches zero or 100 percent.",
+      "KEEP GOING: A mistake does not always end the attempt. "
+      "Rounds continue until danger reaches zero or 100 percent.",
 
-        "HELP AND EXIT: RULES pauses the countdown while you read. "
-        "SPACE during preparation leaves the attempt. Returning "
-        "starts a fresh attempt. Only a victory closes this station."
-    });
+      "HELP AND EXIT: RULES pauses the countdown while you read. "
+      "SPACE during preparation leaves the attempt. Returning "
+      "starts a fresh attempt. Only a victory closes this station."
+        });
 }
 
 void Game3::StartGame() {
@@ -180,8 +180,8 @@ void Game3::StartGame() {
 
 void Game3::BeginRound() {
     const auto threatened = static_cast<Module>(
-       GetRandomValue(0, RadiationBase::ModuleCount - 1)
-   );
+        GetRandomValue(0, RadiationBase::ModuleCount - 1)
+        );
 
     _base.BeginRound(threatened);
 
@@ -194,8 +194,8 @@ void Game3::BeginRound() {
 
 void Game3::ChangeThreat() {
     const int current = static_cast<int>(
-       _base.ThreatenedModule()
-   );
+        _base.ThreatenedModule()
+        );
 
     // Смещение 1 или 2 гарантирует другое здание.
     const int offset = GetRandomValue(
@@ -225,18 +225,18 @@ void Game3::UpdatePreparation(float dt) {
         return;
     }
 
-    _preparationElapsed = std::min(PreparationDuration,_preparationElapsed + dt);
+    _preparationElapsed = std::min(PreparationDuration, _preparationElapsed + dt);
 
     const float lockStartsAt = PreparationDuration - LockDuration;
 
 
-    while (_nextThreatChange < lockStartsAt &&_nextThreatChange <= _preparationElapsed) {
+    while (_nextThreatChange < lockStartsAt && _nextThreatChange <= _preparationElapsed) {
         ChangeThreat();
 
         _nextThreatChange += static_cast<float>(
             GetRandomValue(MinChangeInterval, MaxChangeInterval)
-        );
-           }
+            );
+    }
 
 
     if (_preparationElapsed >= PreparationDuration) {
@@ -246,7 +246,7 @@ void Game3::UpdatePreparation(float dt) {
 
     if (clicked && CheckCollisionPointRec(mouse, _layout.switchPower)) {
         _base.SwitchPower();
-        }
+    }
 }
 
 void Game3::BeginStorm() {
@@ -257,7 +257,7 @@ void Game3::BeginStorm() {
 }
 
 void Game3::UpdateStorm(float dt) {
-    _stormRemaining = std::max(0.0f,_stormRemaining - dt);
+    _stormRemaining = std::max(0.0f, _stormRemaining - dt);
 
     if (_stormRemaining > 0.0f) {
         return;
@@ -288,7 +288,7 @@ void Game3::FinishGame() {
                 "Close this message to return to the Hub.",
                 _base.Round()
             )
-        });
+            });
 
         return;
     }
@@ -302,7 +302,7 @@ void Game3::FinishGame() {
 
         "Close this message to return to the Hub. "
         "This station stays open for another attempt."
-    });
+        });
 }
 
 bool Game3::TargetLocked() const {
@@ -310,17 +310,17 @@ bool Game3::TargetLocked() const {
 }
 
 void Game3::DrawHUD() const {
-     const auto w = static_cast<float>(_layout.width);
+    const auto w = static_cast<float>(_layout.width);
     const auto h = static_cast<float>(_layout.height);
     const float s = _layout.scale;
 
-    const Color dangerColor =_base.Danger() >= 85.0f ? RED :_base.Danger() > 35.0f ? ORANGE :LIME;
+    const Color dangerColor = _base.Danger() >= 85.0f ? RED : _base.Danger() > 35.0f ? ORANGE : DARKGREEN;
 
-    Label(TextFormat("RADIATION DANGER: %.1f%%", _base.Danger()),w * 0.10f,h * 0.15f,FontSize(26, s),dangerColor);
+    Label(TextFormat("RADIATION DANGER: %.1f%%", _base.Danger()), w * 0.10f, h * 0.15f, FontSize(26, s), BLACK);
 
     DrawRectangleRec(
         _layout.dangerBar,
-        Color{42, 48, 63, 255}
+        Color{ 42, 48, 63, 255 }
     );
 
     Rectangle fill = _layout.dangerBar;
@@ -330,51 +330,49 @@ void Game3::DrawHUD() const {
 
     DrawRectangleRec(fill, dangerColor);
 
-    Label(TextFormat("Storm %d", _base.Round()),w * 0.10f,h * 0.225f,FontSize(22, s),LIGHTGRAY);
+    Label(TextFormat("Storm %d", _base.Round()), w * 0.10f, h * 0.28f, FontSize(22, s), LIGHTGRAY);
 
-    const Rectangle timerBounds{w * 0.65f, h * 0.15f,w * 0.25f, h * 0.05f};
+    const Rectangle timerBounds{ w * 0.65f, h * 0.15f,w * 0.25f, h * 0.05f };
 
-    const Rectangle statusBounds{w * 0.22f, h * 0.275f,w * 0.56f, h * 0.035f};
+    const Rectangle statusBounds{ w * 0.22f, h * 0.275f,w * 0.56f, h * 0.035f };
 
     if (_phase == Phase::Preparation) {
-        const int secondsLeft = static_cast<int>(
-            std::ceil(PreparationDuration - _preparationElapsed)
-        );
+        const int secondsLeft = static_cast<int>(std::ceil(PreparationDuration - _preparationElapsed));
 
-        CenteredText(TextFormat("STORM IN: %02d", secondsLeft),timerBounds,FontSize(32, s),TargetLocked() ? ORANGE : RAYWHITE);
-        const char* status =TargetLocked() ? "TARGET LOCKED - CHECK YOUR SHIELD": _preparationElapsed < FirstThreatChange ? "PREPARE - WATCH THE GREEN SYMBOL" : "FORECAST CHANGING - WATCH THE GREEN SYMBOL";
+        CenteredText(TextFormat("STORM IN: %02d", secondsLeft), timerBounds, FontSize(32, s), TargetLocked() ? MAROON : DARKGRAY);
+        const char* status = TargetLocked() ? "TARGET LOCKED - CHECK YOUR SHIELD" : _preparationElapsed < FirstThreatChange ? "PREPARE - WATCH THE GREEN SYMBOL" : "FORECAST CHANGING - WATCH THE GREEN SYMBOL";
 
-        CenteredText(status,statusBounds,FontSize(22, s),TargetLocked() ? ORANGE : SKYBLUE);
+        CenteredText(status, statusBounds, FontSize(22, s), TargetLocked() ? ORANGE : SKYBLUE);
     }
     else {
-        CenteredText(_phase == Phase::Storm ? "STORM ACTIVE" : "ATTEMPT ENDED",timerBounds,FontSize(28, s),ORANGE);
+        CenteredText(_phase == Phase::Storm ? "STORM ACTIVE" : "ATTEMPT ENDED", timerBounds, FontSize(28, s), DARKGRAY);
     }
 }
 
 void Game3::DrawModules() const {
-    const Vector2 source{_layout.switchPower.x + _layout.switchPower.width * 0.5f,_layout.switchPower.y};
+    const Vector2 source{ _layout.switchPower.x + _layout.switchPower.width * 0.5f,_layout.switchPower.y };
 
     for (int i = 0; i < RadiationBase::ModuleCount; ++i) {
         const Rectangle bounds = _layout.modules[i];
         const auto module = static_cast<Module>(i);
 
-        const Vector2 destination{bounds.x + bounds.width * 0.5f,bounds.y + bounds.height};
+        const Vector2 destination{ bounds.x + bounds.width * 0.5f,bounds.y + bounds.height };
 
         const bool powered = module == _base.PoweredModule();
 
-        DrawLineEx(source,destination,std::max(1.0f, 3.0f * _layout.scale),powered ? GOLD : Color{48, 61, 79, 255});
+        DrawLineEx(source, destination, std::max(1.0f, 3.0f * _layout.scale), powered ? GOLD : Color{ 48, 61, 79, 255 });
     }
 
     for (int i = 0; i < RadiationBase::ModuleCount; ++i) {
-        DrawModule(static_cast<Module>(i),_layout.modules[i]);
+        DrawModule(static_cast<Module>(i), _layout.modules[i]);
     }
 }
 
 void Game3::DrawModule(Module module, Rectangle bounds) const {
-     constexpr std::array<const char*, RadiationBase::ModuleCount> names{
-        "GREENHOUSE",
-        "HABITAT",
-        "LABORATORY"
+    constexpr std::array<const char*, RadiationBase::ModuleCount> names{
+       "GREENHOUSE",
+       "HABITAT",
+       "LABORATORY"
     };
 
     const float s = _layout.scale;
@@ -382,15 +380,15 @@ void Game3::DrawModule(Module module, Rectangle bounds) const {
     const bool powered = module == _base.PoweredModule();
     const bool threatened = module == _base.ThreatenedModule();
 
-    const bool damaged =threatened &&
+    const bool damaged = threatened &&
         (_phase == Phase::Storm || _phase == Phase::Result) &&
         _base.LastStorm() == RadiationBase::StormResult::Missed;
 
     const auto state = damaged
         ? RadiationArt::State::Damaged
         : powered
-            ? RadiationArt::State::Powered
-            : RadiationArt::State::Normal;
+        ? RadiationArt::State::Powered
+        : RadiationArt::State::Normal;
 
     const auto texture = _art.Building(module, state);
 
@@ -415,7 +413,7 @@ void Game3::DrawModule(Module module, Rectangle bounds) const {
 
     if (powered) {
         PowerSymbol(
-            {bounds.x + bounds.width * 0.90f, symbolY},
+            { bounds.x + bounds.width * 0.90f, symbolY },
             14 * s
         );
     }
@@ -425,7 +423,7 @@ void Game3::DrawModule(Module module, Rectangle bounds) const {
             1.0f + 0.08f * std::sin(_visualTime * 4.0f);
 
         RadiationSymbol(
-            {bounds.x + bounds.width * 0.10f, symbolY},
+            { bounds.x + bounds.width * 0.10f, symbolY },
             16 * s * pulse,
             LIME
         );
@@ -509,7 +507,7 @@ void Game3::DrawStorm() const {
         panel.height * 0.18f
     };
 
-    DrawRectangleRec(message, Color{10, 16, 28, 240});
+    DrawRectangleRec(message, Color{ 10, 16, 28, 240 });
     DrawRectangleLinesEx(message, 2.0f, accent);
 
     CenteredText(
@@ -526,8 +524,8 @@ void Game3::DrawStorm() const {
 
     CenteredText(
         protectedModule
-            ? "SHIELD HELD - DANGER REDUCED"
-            : "PRIORITY MODULE UNPROTECTED - DANGER INCREASED",
+        ? "SHIELD HELD - DANGER REDUCED"
+        : "PRIORITY MODULE UNPROTECTED - DANGER INCREASED",
         {
             message.x,
             message.y + message.height * 0.55f,
@@ -543,37 +541,42 @@ void Game3::DrawStorm() const {
 
 Game3::Game3() = default;
 
-Game3::~Game3() = default;
+Game3::~Game3()
+{
+    if (_plashka.id != 0) {
+        UnloadTexture(_plashka);
+    }
+}
 
 void Game3::Update(float dt) {
     if (_layout.width != GetScreenWidth() || _layout.height != GetScreenHeight()) {
         BuildLayout();
-      }
+    }
 
     dt = std::max(0.0f, dt);
     _visualTime += dt;
 
     switch (_phase) {
-        case Phase::Theory:
-            _phase = Phase::Rules;
-            ShowRules();
-            break;
+    case Phase::Theory:
+        _phase = Phase::Rules;
+        ShowRules();
+        break;
 
-        case Phase::Rules:
-            StartGame();
-            break;
+    case Phase::Rules:
+        StartGame();
+        break;
 
-        case Phase::Preparation:
-            UpdatePreparation(dt);
-            break;
+    case Phase::Preparation:
+        UpdatePreparation(dt);
+        break;
 
-        case Phase::Storm:
-            UpdateStorm(dt);
-            break;
+    case Phase::Storm:
+        UpdateStorm(dt);
+        break;
 
-        case Phase::Result:
-            GameManager::Instanse().ChangeState(GameState::Hub);
-            break;
+    case Phase::Result:
+        GameManager::Instanse().ChangeState(GameState::Hub);
+        break;
     }
 }
 
@@ -586,9 +589,20 @@ void Game3::Draw() const {
     const auto h = static_cast<float>(_layout.height);
     const float s = _layout.scale;
 
-    RadiationArt::Draw(_art.Background(), {0, 0, w, h});
+    RadiationArt::Draw(_art.Background(), { 0, 0, w, h });
 
-    CenteredText("RADIATION ALERT",{w * 0.20f, h * 0.085f, w * 0.60f, h * 0.05f},FontSize(36, s),RAYWHITE);
+    const float pw = 1690.0f * s;
+    const float ph = 929.0f * s;
+    DrawTexturePro(
+        _plashka,
+        { 0.0f, 0.0f, static_cast<float>(_plashka.width), static_cast<float>(_plashka.height) },
+        { (w - pw) * 0.5f, (h - ph) * 0.5f, pw, ph },
+        { 0.0f, 0.0f },
+        0.0f,
+        WHITE
+    );
+
+    CenteredText("RADIATION ALERT", { w * 0.20f, h * 0.085f, w * 0.60f, h * 0.05f }, FontSize(36, s), BLACK);
 
     if (_phase == Phase::Theory || _phase == Phase::Rules) {
         return;
@@ -597,14 +611,14 @@ void Game3::Draw() const {
     DrawHUD();
     DrawModules();
 
-    CenteredText("GREEN SYMBOL: PRIORITY MODULE    GOLD BOLT: POWER",{w * 0.10f, h * 0.77f, w * 0.80f, h * 0.035f},FontSize(20, s),LIGHTGRAY);
+    CenteredText("GREEN SYMBOL: PRIORITY MODULE    GOLD BOLT: POWER", { w * 0.10f, h * 0.77f, w * 0.80f, h * 0.035f }, FontSize(20, s), LIGHTGRAY);
 
     const bool canInteract = _phase == Phase::Preparation;
 
     ImageButton(_art.Switch(), _layout.switchPower, canInteract);
     ImageButton(_art.Rules(), _layout.help, canInteract);
 
-    CenteredText("SPACE - leave attempt during preparation",{w * 0.10f, h * 0.94f, w * 0.80f, h * 0.035f},FontSize(20, s),LIGHTGRAY);
+    CenteredText("SPACE - leave attempt during preparation", { w * 0.10f, h * 0.94f, w * 0.80f, h * 0.035f }, FontSize(20, s), LIGHTGRAY);
 
     if (_phase == Phase::Storm) {
         DrawStorm();
@@ -615,10 +629,16 @@ void Game3::OnEnter() {
     _art.Load();
     BuildLayout();
 
+    if (_plashka.id == 0) {
+        _plashka = LoadTexture("assets/game3/plashka.png");
+    }
+
     if (IsFinished) {
         _phase = Phase::Result;
 
-        GameManager::Instanse().ShowDialogue({"This radiation protection mission is already complete!"});
+        GameManager::Instanse().ShowDialogue({
+            "This radiation protection mission is already complete!"
+            });
 
         return;
     }
