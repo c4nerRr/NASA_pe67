@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "raylib.h"
+#include "DialogueArt.h"
 
 struct DialogueConfig {
     float charactersPerSecond = 45.0f;
@@ -24,6 +25,7 @@ struct DialogueConfig {
     Color text{245, 245, 245, 255};
     Color button{45, 51, 78, 255};
     Color buttonHover{69, 80, 118, 255};
+    Color buttonText{24, 21, 49, 255};
 };
 
 class UI2DAll {
@@ -34,6 +36,7 @@ class UI2DAll {
 
     using Page = std::vector<Glyph>;
 
+    DialogueArt _art;
     DialogueConfig _config;
     Font _font{};
 
@@ -68,6 +71,7 @@ public:
 
     bool ShowDialogue(const std::vector<std::string>& messages);
     void CloseDialogue();
+    void Unload();
 
     [[nodiscard]] bool IsDialogueActive() const;
 

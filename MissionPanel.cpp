@@ -18,15 +18,7 @@ namespace {
         DrawRectangleLinesEx(bounds, 2.0f, borderColor);
     }
 
-    void Text(
-        const std::string& text,
-        float x,
-        float y,
-        float width,
-        float scale,
-        Color color = RAYWHITE,
-        int referenceSize = 20
-    ) {
+    void Text(const std::string& text,float x,float y,float width,float scale,Color color = RAYWHITE,int referenceSize = 20) {
         int size = std::max(10,static_cast<int>(referenceSize * scale));
 
         while (size > 10 &&FontManager::Measure(text.c_str(), static_cast<float>(size)).x > width)
@@ -40,35 +32,71 @@ namespace {
     void Button(Rectangle bounds,const char* label,float scale,bool interactive = true) {
         const bool hovered = interactive && CheckCollisionPointRec(GetMousePosition(), bounds);
 
-        DrawRectangleRec(
-            bounds,
-            hovered
-                ? Color{73, 108, 150, 255}
-                : Color{39, 62, 92, 255}
-        );
+        DrawRectangleRec(bounds,hovered? Color{73, 108, 150, 255}: Color{39, 62, 92, 255});
 
-        DrawRectangleLinesEx(
-            bounds,
-            2.0f,
-            hovered ? GOLD : SKYBLUE
-        );
+        DrawRectangleLinesEx(bounds,2.0f,hovered ? GOLD : SKYBLUE);
 
         const float fontSize = std::max(10.0f, 20.0f * scale);
         const Vector2 size = FontManager::Measure(label, fontSize);
 
-        FontManager::Draw(
-            label,
-            bounds.x + (bounds.width - size.x) * 0.5f,
-            bounds.y + (bounds.height - fontSize) * 0.5f,
-            fontSize,
-            RAYWHITE
-        );
+        FontManager::Draw(label,bounds.x + (bounds.width - size.x) * 0.5f,bounds.y + (bounds.height - fontSize) * 0.5f,fontSize,RAYWHITE);
+    }
+    const char* OutcomeTitle(Mission::Outcome outcome) {
+        switch (outcome) {
+            case Mission::Outcome::FullSuccess:
+                return "FULL SUCCESS";
+
+            case Mission::Outcome::PartialSuccess:
+                return "CREW RESCUED - PARTIAL SUCCESS";
+
+            case Mission::Outcome::Failure:
+                return "MISSION FAILED";
+
+            case Mission::Outcome::InProgress:
+                return "MISSION CONTINUES";
+        }
+
+        return "MISSION CONTINUES";
+    }
+
+    const char* OutcomeDescription(Mission::Outcome outcome) {
+        switch (outcome) {
+            case Mission::Outcome::FullSuccess:
+                return "The ship arrived. You kept the crew healthy!";
+
+            case Mission::Outcome::PartialSuccess:
+                return "The ship arrived, but the crew suffered damage.";
+
+            case Mission::Outcome::Failure:
+                return "Crew condition reached zero before rescue.";
+
+            case Mission::Outcome::InProgress:
+                return "Prepare supplies and protect the crew.";
+        }
+
+        return "";
+    }
+
+    Color OutcomeColor(Mission::Outcome outcome) {
+        switch (outcome) {
+            case Mission::Outcome::FullSuccess:
+                return LIME;
+
+            case Mission::Outcome::PartialSuccess:
+                return ORANGE;
+
+            case Mission::Outcome::Failure:
+                return RED;
+
+            case Mission::Outcome::InProgress:
+                return SKYBLUE;
+        }
+
+        return RAYWHITE;
     }
 }
 
-MissionPanel::Layout MissionPanel::GetLayout(
-    std::size_t systemCount
-) const {
+MissionPanel::Layout MissionPanel::GetLayout(std::size_t systemCount) const {
     const auto w = static_cast<float>(GetScreenWidth());
     const auto h = static_cast<float>(GetScreenHeight());
 
@@ -110,17 +138,10 @@ MissionPanel::Layout MissionPanel::GetLayout(
         w * 0.27f, h * 0.08f
     };
 
-    const float rowHeight =
-        h * 0.27f /
-        static_cast<float>(std::max(std::size_t{1}, systemCount));
+    const float rowHeight =h * 0.27f /static_cast<float>(std::max(std::size_t{1}, systemCount));
 
     for (std::size_t i = 0; i < systemCount; ++i) {
-        layout.systems.push_back({
-            w * 0.11f,
-            h * 0.34f + static_cast<float>(i) * rowHeight,
-            w * 0.78f,
-            rowHeight * 0.84f
-        });
+        layout.systems.push_back({w * 0.11f,h * 0.34f + static_cast<float>(i) * rowHeight,w * 0.78f,rowHeight * 0.84f});
     }
 
     return layout;
@@ -182,12 +203,7 @@ bool MissionPanel::BlocksPointer(
     return CheckCollisionPointRec(mouse, layout.mascot);
 }
 
-void MissionPanel::Draw(
-    const Mission& mission,
-    bool dialogueActive,
-    bool exitVisible,
-    bool confirmationOpen
-) const {
+void MissionPanel::Draw(const Mission& mission,bool dialogueActive,bool exitVisible,bool confirmationOpen) const {
     const auto layout = GetLayout(mission.Rules().systems.size());
 
     const auto w = static_cast<float>(GetScreenWidth());
@@ -208,14 +224,15 @@ void MissionPanel::Draw(
     Panel(layout.content);
 
     if (mission.IsFinished()) {
-        const bool won =
-            mission.CurrentPhase() == Mission::Phase::Won;
+        const auto outcome = mission.Result();
 
-        Text(won ? "MISSION COMPLETE" : "MISSION FAILED", w * 0.13f, h * 0.25f, w * 0.74f,s, won ? LIME : ORANGE, 30);
+        Text(OutcomeTitle(outcome),w * 0.13f, h * 0.24f, w * 0.74f,s, OutcomeColor(outcome), 30);
 
-        Text( won ? "The supply ship has arrived. Your crew survived!" : "The crew could not hold out until the ship arrived.", w * 0.13f, h * 0.34f, w * 0.74f,s);
+        Text(OutcomeDescription(outcome),w * 0.13f, h * 0.33f, w * 0.74f,s);
 
-        Text("Water: " + std::to_string(supplies.water) + "    Food: " + std::to_string(supplies.food) + "    Crew: " + std::to_string(supplies.crew) +"/" + std::to_string(rules.supplies.crew),w * 0.13f, h * 0.43f, w * 0.74f,s, SKYBLUE);
+        Text("Water: " + std::to_string(supplies.water) +"    Food: " + std::to_string(supplies.food),w * 0.13f, h * 0.41f, w * 0.74f,s, SKYBLUE);
+
+        Text("Crew condition: " +std::to_string(supplies.crew) + "/" +std::to_string(rules.supplies.crew),w * 0.13f, h * 0.47f, w * 0.74f,s, OutcomeColor(outcome), 23);
 
         if (exitVisible && !dialogueActive) {
             Button(layout.quit, "QUIT GAME", s);
@@ -224,32 +241,11 @@ void MissionPanel::Draw(
         return;
     }
 
-    Text(
-        "DAY " + std::to_string(mission.Day()) +
-        " / " + std::to_string(rules.finalDay) +
-        (mission.Day() == rules.stormDay
-            ? "  -  SOLAR STORM"
-            : "  -  PREPARE SUPPLIES"),
-        w * 0.11f, h * 0.17f, w * 0.78f,
-        s, GOLD, 25
-    );
+    Text("DAY " + std::to_string(mission.Day()) +" / " + std::to_string(rules.finalDay) +(mission.Day() == rules.stormDay? "  -  SOLAR STORM": "  -  PREPARE SUPPLIES"),w * 0.11f, h * 0.17f, w * 0.78f,s, GOLD, 25);
 
-    Text(
-        "WATER: " + std::to_string(supplies.water) +
-        "    FOOD: " + std::to_string(supplies.food) +
-        "    CREW: " + std::to_string(supplies.crew) +
-        "/" + std::to_string(rules.supplies.crew),
-        w * 0.11f, h * 0.23f, w * 0.78f,
-        s, RAYWHITE, 23
-    );
+    Text("WATER: " + std::to_string(supplies.water) +"    FOOD: " + std::to_string(supplies.food) +"    CREW CONDITION: " + std::to_string(supplies.crew) +"/" + std::to_string(rules.supplies.crew),w * 0.11f, h * 0.23f, w * 0.78f,s, RAYWHITE, 23);
 
-    Text(
-        "POWER: " + std::to_string(mission.UsedPower()) +
-        "/" + std::to_string(mission.AvailablePower()) +
-        " used. Switch a system OFF to free power.",
-        w * 0.11f, h * 0.285f, w * 0.78f,
-        s, GOLD
-    );
+    Text("POWER: " + std::to_string(mission.UsedPower()) +"/" + std::to_string(mission.AvailablePower()) +" used. Switch a system OFF to free power.",w * 0.11f, h * 0.285f, w * 0.78f,s, GOLD);
 
     const bool interactive = !dialogueActive && !confirmationOpen;
 
@@ -259,55 +255,19 @@ void MissionPanel::Draw(
 
         const bool powered = mission.IsPowered(i);
 
-        const bool hovered =
-            interactive &&
-            CheckCollisionPointRec(GetMousePosition(), row);
+        const bool hovered =interactive && CheckCollisionPointRec(GetMousePosition(), row);
 
-        DrawRectangleRec(
-            row,
-            powered
-                ? Color{37, 79, 68, 255}
-                : Color{31, 43, 63, 255}
-        );
+        DrawRectangleRec(row,powered? Color{37, 79, 68, 255}: Color{31, 43, 63, 255});
 
-        DrawRectangleLinesEx(
-            row,
-            2.0f,
-            hovered ? GOLD : powered ? LIME : borderColor
-        );
+        DrawRectangleLinesEx(row,2.0f,hovered ? GOLD : powered ? LIME : borderColor);
 
         const float rowScale = std::min(s, row.height / 48.0f);
 
-        Text(
-            system.name,
-            row.x + w * 0.012f,
-            row.y + row.height * 0.12f,
-            w * 0.50f,
-            rowScale,
-            powered ? LIME : RAYWHITE,
-            19
-        );
+        Text(system.name,row.x + w * 0.012f,row.y + row.height * 0.12f,w * 0.50f,rowScale,powered ? LIME : RAYWHITE,19);
 
-        Text(
-            system.effect,
-            row.x + w * 0.012f,
-            row.y + row.height * 0.57f,
-            w * 0.50f,
-            rowScale,
-            LIGHTGRAY,
-            16
-        );
+        Text(system.effect,row.x + w * 0.012f,row.y + row.height * 0.57f,w * 0.50f,rowScale,LIGHTGRAY,16);
 
-        Text(
-            std::to_string(system.powerCost) + " POWER | " +
-            (powered ? "ON" : "OFF"),
-            w * 0.68f,
-            row.y + row.height * 0.30f,
-            w * 0.19f,
-            rowScale,
-            powered ? LIME : LIGHTGRAY,
-            18
-        );
+        Text(std::to_string(system.powerCost) + " POWER | " +(powered ? "ON" : "OFF"),w * 0.68f,row.y + row.height * 0.30f,w * 0.19f,rowScale,powered ? LIME : LIGHTGRAY,18);
     }
 
     if (const auto preview = mission.PreviewDat()) {
@@ -315,7 +275,8 @@ void MissionPanel::Draw(
             "AFTER THIS DAY: water " +
             std::to_string(preview->after.water) +
             "    food " + std::to_string(preview->after.food) +
-            "    crew " + std::to_string(preview->after.crew),
+            "    condition " + std::to_string(preview->after.crew) +
+            "/" + std::to_string(rules.supplies.crew),
             w * 0.11f, h * 0.64f, w * 0.78f,
             s,
             preview->after.crew < supplies.crew ? ORANGE : SKYBLUE
@@ -340,10 +301,7 @@ void MissionPanel::Draw(
     }
 }
 
-void MissionPanel::DrawConfirmation(
-    const Mission& mission,
-    const Layout& layout
-) const {
+void MissionPanel::DrawConfirmation(const Mission& mission,const Layout& layout) const {
     const auto report = mission.PreviewDat();
 
     if (!report) {
@@ -354,11 +312,7 @@ void MissionPanel::DrawConfirmation(
     const auto h = static_cast<float>(GetScreenHeight());
     const float s = layout.scale;
 
-    DrawRectangle(
-        0, 0,
-        GetScreenWidth(), GetScreenHeight(),
-        Color{0, 0, 0, 175}
-    );
+    DrawRectangle(0, 0,GetScreenWidth(), GetScreenHeight(),Color{0, 0, 0, 175});
 
     Panel(layout.confirmation);
 
@@ -371,51 +325,71 @@ void MissionPanel::DrawConfirmation(
     Text(
         "Production: +" + std::to_string(report->waterProduced) +
         " water, +" + std::to_string(report->foodProduced) + " food.",
-        w * 0.19f, h * 0.30f, w * 0.62f,
+        w * 0.19f, h * 0.28f, w * 0.62f,
         s
     );
 
     Text(
-        "After the day: water " + std::to_string(report->after.water) +
+        "After: water " + std::to_string(report->after.water) +
         ", food " + std::to_string(report->after.food) +
-        ", crew " + std::to_string(report->after.crew) + ".",
-        w * 0.19f, h * 0.36f, w * 0.62f,
+        ", crew condition " + std::to_string(report->after.crew) +
+        "/" + std::to_string(mission.Rules().supplies.crew) + ".",
+        w * 0.19f, h * 0.335f, w * 0.62f,
         s, SKYBLUE
     );
 
-    float warningY = h * 0.43f;
+    float warningY = h * 0.395f;
 
-    if (report->waterShortage) {
+    const auto warning = [&](const std::string& message) {
         Text(
-            "WARNING: Not enough water.",
+            message,
             w * 0.19f, warningY, w * 0.62f,
             s, ORANGE, 18
         );
 
-        warningY += h * 0.05f;
+        warningY += h * 0.045f;
+    };
+
+    if (report->waterShortage) {
+        warning(
+            "Water shortage. Condition penalty: " +
+            std::to_string(report->waterDamage) + "."
+        );
     }
 
     if (report->foodShortage) {
-        Text(
-            "WARNING: Not enough food.",
-            w * 0.19f, warningY, w * 0.62f,
-            s, ORANGE, 18
+        warning(
+            "Food shortage. Condition penalty: " +
+            std::to_string(report->foodDamage) + "."
         );
-
-        warningY += h * 0.05f;
     }
 
     if (report->storm && !report->protectedFromStorm) {
+        warning(
+            "Shelter OFF. Storm condition penalty: " +
+            std::to_string(report->stormDamage) + "."
+        );
+    }
+
+    if (report->outcome == Mission::Outcome::InProgress) {
         Text(
-            "WARNING: The shelter is OFF. Storm damage will apply.",
-            w * 0.19f, warningY, w * 0.62f,
-            s, ORANGE, 18
+            "The mission continues. Condition damage carries over.",
+            w * 0.19f, h * 0.545f, w * 0.62f,
+            s, SKYBLUE, 18
+        );
+    }
+    else {
+        Text(
+            std::string("EXPECTED RESULT: ") +
+            OutcomeTitle(report->outcome),
+            w * 0.19f, h * 0.545f, w * 0.62f,
+            s, OutcomeColor(report->outcome), 20
         );
     }
 
     Text(
-        "Go back to change your plan, or finish with these consequences.",
-        w * 0.19f, h * 0.59f, w * 0.62f,
+        "Go back to change your plan, or confirm these consequences.",
+        w * 0.19f, h * 0.60f, w * 0.62f,
         s, LIGHTGRAY, 16
     );
 

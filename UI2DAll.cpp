@@ -1,6 +1,8 @@
 #include "UI2DAll.h"
+#include "UI2DAll.h"
 
 #include <sstream>
+#include <algorithm>
 
 #include "FontManager.h"
 #include "GuideSptire.h"
@@ -66,11 +68,11 @@ void UI2DAll::BuildLayout() {
     const float panelHeight = height * _config.heightRatio;
 
     _panel = {(width - panelWidth) * 0.5f,height - height * _config.bottomMarginRatio - panelHeight,panelWidth,panelHeight};
-    const float buttonWidth =MeasureText(skipLabel, _smallFontSize) + padding * 1.5f; //NOLINT
+    const auto button = _art.Get(DialogueArt::Image::SkipIdle);
+    const float buttonHeight = _smallFontSize + padding;
+    const float buttonWidth = buttonHeight * static_cast<float>(button.width) / button.height;
 
-    const float buttonHeight = _smallFontSize + padding; //NOLINT
-
-    _skipButton = {_panel.x + _panel.width - padding - buttonWidth,_panel.y + padding * 0.5f,buttonWidth,buttonHeight};
+    _skipButton = {_panel.x + _panel.width - padding - buttonWidth,_panel.y + padding,buttonWidth,buttonHeight};
 
     _buttonTextPosition = {_skipButton.x +(_skipButton.width -MeasureText(skipLabel, _smallFontSize)) * 0.5f,_skipButton.y +(_skipButton.height - _smallFontSize) * 0.5f}; //NOLINT
 
@@ -134,6 +136,7 @@ bool UI2DAll::ShowDialogue(const std::vector<std::string> &messages) {
     if (IsDialogueActive()) {
         return false;
     }
+    _art.Load();
     BuildLayout();
     for (const std::string& message : messages) {
         AddMessage(message);
@@ -216,8 +219,8 @@ void UI2DAll::Draw() const {
 
     DrawRectangle(0,0,GetScreenWidth(),GetScreenHeight(),_config.dimmer);
 
-    DrawRectangleRec(_panel, _config.panel);
-    DrawRectangleLinesEx(_panel, 2.0f, _config.border);
+    DialogueArt::Draw(_art.Get(DialogueArt::Image::Panel), _panel);
+
 
     const auto screenWidth = static_cast<float>(GetScreenWidth());
     const auto screenHeight = static_cast<float>(GetScreenHeight());
@@ -231,9 +234,9 @@ void UI2DAll::Draw() const {
 
     const bool hovered = CheckCollisionPointRec(InputManager::MousePosition(), _skipButton);
 
-    DrawRectangleRec(_skipButton,hovered ? _config.buttonHover : _config.button);
+    DialogueArt::Draw(_art.Get(hovered ? DialogueArt::Image::SkipHover : DialogueArt::Image::SkipIdle), _skipButton);
 
-    DrawText(skipLabel,static_cast<int>(_buttonTextPosition.x),static_cast<int>(_buttonTextPosition.y),_smallFontSize,_config.text);
+    DrawText(skipLabel,static_cast<int>(_buttonTextPosition.x),static_cast<int>(_buttonTextPosition.y),_smallFontSize,_config.buttonText);
 
     const Page& page = _pages[_pageIndex];
 
@@ -254,4 +257,8 @@ void UI2DAll::Draw() const {
     }
 
     DrawText(hint,static_cast<int>(_hintPosition.x),static_cast<int>(_hintPosition.y),_smallFontSize,_config.border);
+}
+void UI2DAll::Unload() {
+    CloseDialogue();
+    _art.Unload();
 }

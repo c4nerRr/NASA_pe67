@@ -85,6 +85,7 @@ add_executable(NASA
         PipeDesign.h
         PauseArt.cpp
         PauseArt.h
+        DialogueArt.cpp
 )
 
 add_custom_target(NASA_assets ALL

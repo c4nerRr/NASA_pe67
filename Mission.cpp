@@ -1,27 +1,56 @@
 //
 // Created by c4ner on 11/14/2026.
 //
-
 #include "Mission.h"
-
+#include <algorithm>
 #include <stdexcept>
+#include <utility>
 
-Mission::Mission(MissionRules rules) : _rules(std::move(rules)), _supplies(_rules.supplies), _powered(_rules.systems.size(), false) {
-    if (_rules.finalDay < 2 || _rules.stormDay < 2 || _rules.stormDay > _rules.finalDay || _rules.lifeSupportPower < 0 || _rules.generatorPower < _rules.lifeSupportPower ||_rules.dailyWater < 0 ||_rules.dailyFood < 0 ||_rules.shortageDamage < 0 ||_rules.stormDamage < 0 ||_supplies.water < 0 ||_supplies.food < 0 ||_supplies.crew <= 0) {
-        throw std::invalid_argument("Mission::Mission::Mission");
+Mission::Mission(MissionRules rules)
+    : _rules(std::move(rules)),
+      _supplies(_rules.supplies),
+      _powered(_rules.systems.size(), false) {
+
+    if (
+        _rules.finalDay < 2 ||
+        _rules.stormDay < 2 ||
+        _rules.stormDay > _rules.finalDay ||
+        _rules.lifeSupportPower < 0 ||
+        _rules.generatorPower < _rules.lifeSupportPower ||
+        _rules.dailyWater < 0 ||
+        _rules.dailyFood < 0 ||
+        _rules.shortageDamage < 0 ||
+        _rules.stormDamage < 0 ||
+        _supplies.water < 0 ||
+        _supplies.food < 0 ||
+        _supplies.crew <= 0
+    ) {
+        throw std::invalid_argument("Invalid mission rules");
     }
+
     for (const auto& system : _rules.systems) {
-        if (system.powerCost < 0 || system.waterProduced < 0 || system.foodProduced < 0) {
-            throw std::invalid_argument("Mission::Mission::Mission");
+        if (
+            system.powerCost < 0 ||
+            system.waterProduced < 0 ||
+            system.foodProduced < 0
+        ) {
+            throw std::invalid_argument("Invalid mission system");
         }
     }
 }
 
-Mission::~Mission() {
-}
+Mission::~Mission() = default;
 
 Mission::Phase Mission::CurrentPhase() const {
     return _phase;
+}
+
+Mission::Outcome Mission::Result() const {
+    if (!IsFinished()) {
+        return Outcome::InProgress;
+    }
+
+    return EvaluateOutcome(_day, _supplies);
 }
 
 int Mission::Day() const {
@@ -29,14 +58,14 @@ int Mission::Day() const {
 }
 
 bool Mission::IsFinished() const {
-    return _phase == Phase::Won || _phase == Phase::Lost;
+    return _phase == Phase::Finished;
 }
 
-const MissionRules & Mission::Rules() const {
+const MissionRules& Mission::Rules() const {
     return _rules;
 }
 
-const MissionSupplies & Mission::Supplies() const {
+const MissionSupplies& Mission::Supplies() const {
     return _supplies;
 }
 
@@ -56,6 +85,7 @@ int Mission::UsedPower() const {
             used += _rules.systems[i].powerCost;
         }
     }
+
     return used;
 }
 
@@ -71,18 +101,42 @@ bool Mission::StartOperations() {
 }
 
 bool Mission::ToggleSystem(std::size_t index) {
-    if (_phase != Phase::Operations || index >= _powered.size()) {
+    if (
+        _phase != Phase::Operations ||
+        index >= _powered.size()
+    ) {
         return false;
     }
 
-    if (!_powered[index] &&
-        UsedPower() + _rules.systems[index].powerCost > AvailablePower()) {
-
+    if (
+        !_powered[index] &&
+        UsedPower() + _rules.systems[index].powerCost >
+            AvailablePower()
+    ) {
         return false;
-        }
+    }
 
     _powered[index] = !_powered[index];
     return true;
+}
+
+Mission::Outcome Mission::EvaluateOutcome(
+    int completedDay,
+    const MissionSupplies& supplies
+) const {
+    if (supplies.crew <= 0) {
+        return Outcome::Failure;
+    }
+
+    if (completedDay < _rules.finalDay) {
+        return Outcome::InProgress;
+    }
+
+    if (supplies.crew == _rules.supplies.crew) {
+        return Outcome::FullSuccess;
+    }
+
+    return Outcome::PartialSuccess;
 }
 
 std::optional<Mission::DayReport> Mission::PreviewDat() const {
@@ -115,25 +169,32 @@ std::optional<Mission::DayReport> Mission::PreviewDat() const {
     report.waterShortage = water < _rules.dailyWater;
     report.foodShortage = food < _rules.dailyFood;
 
-    int damage = 0;
+    report.waterDamage =
+        report.waterShortage ? _rules.shortageDamage : 0;
 
-    if (report.waterShortage) {
-        damage += _rules.shortageDamage;
-    }
+    report.foodDamage =
+        report.foodShortage ? _rules.shortageDamage : 0;
 
-    if (report.foodShortage) {
-        damage += _rules.shortageDamage;
-    }
+    report.stormDamage =
+        report.storm && !report.protectedFromStorm
+            ? _rules.stormDamage
+            : 0;
 
-    if (report.storm && !report.protectedFromStorm) {
-        damage += _rules.stormDamage;
-    }
+    const int totalDamage =
+        report.waterDamage +
+        report.foodDamage +
+        report.stormDamage;
 
     report.after = {
         std::max(0, water - _rules.dailyWater),
         std::max(0, food - _rules.dailyFood),
-        std::max(0, _supplies.crew - damage)
+        std::max(0, _supplies.crew - totalDamage)
     };
+
+    report.outcome = EvaluateOutcome(
+        report.day,
+        report.after
+    );
 
     return report;
 }
@@ -147,14 +208,11 @@ std::optional<Mission::DayReport> Mission::EndDay() {
 
     _supplies = report->after;
 
-    if (_supplies.crew == 0) {
-        _phase = Phase::Lost;
-    }
-    else if (_day >= _rules.finalDay) {
-        _phase = Phase::Won;
+    if (report->outcome == Outcome::InProgress) {
+        ++_day;
     }
     else {
-        ++_day;
+        _phase = Phase::Finished;
     }
 
     return report;

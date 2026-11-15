@@ -133,22 +133,32 @@ void HubMission::TalkToGuide() {
         const auto& rules = _mission.Rules();
 
         if (manager.ShowDialogue({
-            "All stations are repaired! Close this briefing "
-            "to begin Day 2.",
+            "All stations are repaired! "
+            "Close this briefing to begin Day 2.",
 
-            "Choose which equipment receives power. "
-            "Stations produce resources first; then the crew consumes " +
+            "Your goal: keep crew condition at " +
+            std::to_string(rules.supplies.crew) + "/" +
+            std::to_string(rules.supplies.crew) +
+            " until the supply ship arrives. "
+            "Condition measures crew health, not the number of people.",
+
+            "Power only two systems at once. "
+            "Production happens first; then the crew uses " +
             std::to_string(rules.dailyWater) + " water and " +
             std::to_string(rules.dailyFood) + " food.",
 
-            "A solar storm arrives on Day " +
+            "Prepare reserves on Day 2. The storm arrives on Day " +
             std::to_string(rules.stormDay) +
-            ". The supply ship arrives after Day " +
+            ". Power the shelter and use your reserves. "
+            "The ship arrives after Day " +
             std::to_string(rules.finalDay) + ".",
 
-            "Click END DAY when ready. You can review the result "
-            "and either confirm or go back. "
-            "Click me whenever you need help."
+            "Shortages and an unprotected storm reduce condition. "
+            "Damage carries over and cannot be healed in this mission. "
+            "Surviving with damage gives a partial success.",
+
+            "Click END DAY to review your plan. "
+            "GO BACK changes it; FINISH DAY applies it."
         })) {
             _pending = PendingAction::StartOperations;
         }
@@ -163,33 +173,38 @@ void HubMission::TalkToGuide() {
     const auto& rules = _mission.Rules();
 
     std::vector<std::string> messages{
-        "Day " + std::to_string(_mission.Day()) + ". "
-        "Available power for equipment: " +
+        "Day " + std::to_string(_mission.Day()) +
+        ". Equipment power available: " +
         std::to_string(_mission.AvailablePower()) +
         ". Life support already has its reserved power.",
 
-        "Click a system to switch it ON or OFF. "
-        "If there is not enough free power, switch another system OFF first."
+        "Switch a system OFF to free power for another. "
+        "Keep the crew supplied and protected."
     };
 
     if (_mission.Day() == rules.stormDay) {
         messages.emplace_back(
-            "The solar storm is here. Power the shelter to prevent "
-            "storm damage. Use stored water or food while one "
-            "production system is switched off."
+            "The storm is here. Power the shelter to prevent " +
+            std::to_string(rules.stormDamage) +
+            " condition damage. Use stored supplies while "
+            "one production system is OFF."
         );
     }
     else {
         messages.emplace_back(
-            "Build water and food reserves before the storm. "
+            "Prepare water and food reserves before the storm. "
             "Unused supplies carry over to the next day."
         );
     }
 
     messages.emplace_back(
-        "Click END DAY to review your plan. "
-        "GO BACK lets you change it. FINISH DAY applies it. "
-        "Warnings explain consequences; they do not forbid your decision."
+        "Full success means keeping the starting crew condition. "
+        "Survival with damage is a partial success. "
+        "Zero condition means mission failure."
+    );
+
+    messages.emplace_back(
+        "END DAY shows the consequences before you confirm."
     );
 
     manager.ShowDialogue(messages);
@@ -216,84 +231,100 @@ void HubMission::FinishPendingAction() {
 }
 
 void HubMission::ShowDayReport(const Mission::DayReport& report) {
-    const auto& rules = _mission.Rules();
+  const auto& rules = _mission.Rules();
 
     std::vector<std::string> messages{
         "Day " + std::to_string(report.day) +
-        " complete. Stations produced " +
+        " complete. Produced " +
         std::to_string(report.waterProduced) + " water and " +
         std::to_string(report.foodProduced) +
-        " food. Supplies left after consumption: " +
-        std::to_string(report.after.water) + " water and " +
+        " food. Supplies left: " +
+        std::to_string(report.after.water) + " water, " +
         std::to_string(report.after.food) + " food."
     };
 
     if (report.waterShortage) {
         messages.emplace_back(
-            "Water shortage: crew condition fell by " +
-            std::to_string(rules.shortageDamage) + "."
+            "Water shortage. Condition penalty: " +
+            std::to_string(report.waterDamage) + "."
         );
     }
 
     if (report.foodShortage) {
         messages.emplace_back(
-            "Food shortage: crew condition fell by " +
-            std::to_string(rules.shortageDamage) + "."
+            "Food shortage. Condition penalty: " +
+            std::to_string(report.foodDamage) + "."
         );
     }
 
     if (report.storm) {
-        messages.emplace_back(
-            report.protectedFromStorm
-                ? "The powered shelter protected the crew "
-                  "from the solar storm."
-                : "The unpowered shelter left the crew exposed. "
-                  "Storm damage: " +
-                  std::to_string(rules.stormDamage) + "."
-        );
+        if (report.protectedFromStorm) {
+            messages.emplace_back(
+                "The powered shelter protected the crew "
+                "from the storm."
+            );
+        }
+        else {
+            messages.emplace_back(
+                "The shelter was OFF. Storm condition penalty: " +
+                std::to_string(report.stormDamage) + "."
+            );
+        }
     }
 
     messages.emplace_back(
         "Crew condition: " +
+        std::to_string(report.before.crew) + " -> " +
         std::to_string(report.after.crew) + "/" +
         std::to_string(rules.supplies.crew) + "."
     );
 
-    if (_mission.CurrentPhase() == Mission::Phase::Won) {
-        messages.emplace_back(
-            "We made it! The supply ship has arrived and the crew is alive. "
-            "Your repairs and resource decisions kept this outpost running!"
-        );
+    switch (report.outcome) {
+        case Mission::Outcome::FullSuccess:
+            messages.emplace_back(
+                "FULL SUCCESS! The supply ship has arrived. "
+                "The crew stayed healthy throughout the mission. "
+                "Your supplies and protection were enough!"
+            );
+            break;
 
-        messages.emplace_back(
-            "Mission complete. Close this message, "
-            "then click QUIT GAME to leave."
-        );
+        case Mission::Outcome::PartialSuccess:
+            messages.emplace_back(
+                "CREW RESCUED - PARTIAL SUCCESS. "
+                "The ship has arrived, but the crew suffered damage. "
+                "Next time, prepare reserves and keep the shelter "
+                "powered during the storm."
+            );
+            break;
+
+        case Mission::Outcome::Failure:
+            messages.emplace_back(
+                "MISSION FAILED. Crew condition reached zero. "
+                "The crew could not hold out until rescue. "
+                "Plan supplies and storm protection together."
+            );
+            break;
+
+        case Mission::Outcome::InProgress:
+            messages.emplace_back(
+                "Day " + std::to_string(_mission.Day()) +
+                " begins. " +
+                (_mission.Day() == rules.stormDay
+                    ? "The storm is here. Check the shelter!"
+                    : "Review your reserves and power allocation.")
+            );
+
+            messages.emplace_back(
+                "Switches stay where you left them. "
+                "Remaining supplies and condition carry over. "
+                "Click END DAY when your plan is ready."
+            );
+            break;
     }
-    else if (_mission.CurrentPhase() == Mission::Phase::Lost) {
-        messages.emplace_back(
-            "Mission failed. The crew could not hold out until "
-            "the supply ship arrived. Balance food and water production, "
-            "and remember the storm shelter."
-        );
 
+    if (_mission.IsFinished()) {
         messages.emplace_back(
-            "Close this message, then click QUIT GAME to leave."
-        );
-    }
-    else {
-        messages.emplace_back(
-            "Day " + std::to_string(_mission.Day()) + " begins. " +
-            (_mission.Day() == rules.stormDay
-                ? "The solar storm is here! Power the shelter "
-                  "and use your reserves wisely."
-                : "Review your reserves and plan today's power allocation.")
-        );
-
-        messages.emplace_back(
-            "Yesterday's switches stay where you left them. "
-            "Change the allocation as needed, then click END DAY. "
-            "Click the guide if you need help."
+            "Close this report to see the mission result."
         );
     }
 
