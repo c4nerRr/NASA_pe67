@@ -38,7 +38,7 @@
 
 Before you begin, make sure you have installed:
 * **Git** — [download](https://git-scm.com/)
-* **C++ Compiler** (GCC, Clang, or MSVC supporting C++17)
+* **C++ Compiler** (GCC, Clang, or MSVC supporting C++20)
 * **Raylib** — [installation guide](https://www.raylib.com/)
 
 ## Project Mini-Games
