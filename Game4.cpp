@@ -11,14 +11,28 @@ namespace {
         DrawText(text, static_cast<int>(x), static_cast<int>(y), size, color);
     }
 
-    void Button(Rectangle rect, const char* text, bool selected, float scale) {
-        const int size = std::max(10, static_cast<int>(22 * scale));
+    void Button(const GardenArt& art,Rectangle bounds,GardenArt::Button button,bool selected,float scale,bool interactive) {
+        const bool hovered =
+            interactive &&
+            CheckCollisionPointRec(
+                InputManager::MousePosition(),
+                bounds
+            );
 
-        DrawRectangleRec(rect, selected ? Color{ 55, 105, 145, 255 } : Color{ 35, 45, 60, 255 });
+        GardenArt::DrawFill(
+            art.GetButton(button, hovered),
+            bounds
+        );
 
-        DrawRectangleLinesEx(rect, 2.0f, selected ? SKYBLUE : GRAY);
-
-        Label(text, rect.x + (rect.width - MeasureText(text, size)) * 0.5f, rect.y + (rect.height - size) * 0.5f, size, RAYWHITE);
+        if (selected) {
+            DrawRectangleRoundedLinesEx(
+                bounds,
+                0.4f,
+                12,
+                std::max(1.0f, 2.0f * scale),
+                WHITE
+            );
+        }
     }
 }
 
@@ -139,11 +153,45 @@ void Game4::Draw() const {
 
     Label(TextFormat("Day %d/%d   Water left: %d/%d   Reputation: %d", _garden.Day(), GreenGarden::MaxDays, _garden.WaterLeft(), GreenGarden::WaterPerDay, _garden.Reputation()), w * 0.27f, h * 0.12f, font, BLACK);
 
-    Button(_layout.water, "WATER", _tool == Tool::Water, s);
-    Button(_layout.light, "LIGHT", _tool == Tool::Light, s);
+    const bool interactive =
+     _phase == Phase::Playing &&
+     !GameManager::Instanse().IsDialogueActive();
 
-    Button(_layout.help, "RULES", false, s);
-    Button(_layout.nextDay, "END DAY", false, s);
+    Button(
+        _art,
+        _layout.water,
+        GardenArt::Button::Water,
+        _tool == Tool::Water,
+        s,
+        interactive
+    );
+
+    Button(
+        _art,
+        _layout.light,
+        GardenArt::Button::Light,
+        _tool == Tool::Light,
+        s,
+        interactive
+    );
+
+    Button(
+        _art,
+        _layout.help,
+        GardenArt::Button::Rules,
+        false,
+        s,
+        interactive
+    );
+
+    Button(
+        _art,
+        _layout.nextDay,
+        GardenArt::Button::EndDay,
+        false,
+        s,
+        interactive
+    );
 
     DrawGarden();
 
@@ -174,32 +222,56 @@ void Game4::BuildLayout() {
     const auto w = static_cast<float>(_layout.width);
     const auto h = static_cast<float>(_layout.height);
 
-    _layout.scale =
-        std::min(w / 1920.0f, h / 1080.0f);
+    _layout.scale = std::min(
+        w / 1920.0f,
+        h / 1080.0f
+    );
 
-    _layout.water = {
-        w * 0.37f, h * 0.215f,
-        w * 0.12f, h * 0.065f
-    };
+    _layout.water = GardenArt::Fit(
+        _art.GetButton(GardenArt::Button::Water),
+        {
+            w * 0.37f,
+            h * 0.215f,
+            w * 0.12f,
+            h * 0.065f
+        }
+    );
 
-    _layout.light = {
-        w * 0.51f, h * 0.215f,
-        w * 0.12f, h * 0.065f
-    };
+    _layout.light = GardenArt::Fit(
+        _art.GetButton(GardenArt::Button::Light),
+        {
+            w * 0.51f,
+            h * 0.215f,
+            w * 0.12f,
+            h * 0.065f
+        }
+    );
 
-    _layout.help = {
-        w * 0.83f, h * 0.2225f,
-        w * 0.07f, h * 0.05f
-    };
+    _layout.help = GardenArt::Fit(
+        _art.GetButton(GardenArt::Button::Rules),
+        {
+            w * 0.83f,
+            h * 0.2225f,
+            w * 0.07f,
+            h * 0.05f
+        }
+    );
 
-    _layout.nextDay = {
-        w * 0.39f, h * 0.80f,
-        w * 0.22f, h * 0.07f
-    };
+    _layout.nextDay = GardenArt::Fit(
+        _art.GetButton(GardenArt::Button::EndDay),
+        {
+            w * 0.39f,
+            h * 0.80f,
+            w * 0.22f,
+            h * 0.07f
+        }
+    );
 
     _layout.garden = {
-        w * 0.10f, h * 0.29f,
-        w * 0.80f, h * 0.48f
+        w * 0.10f,
+        h * 0.29f,
+        w * 0.80f,
+        h * 0.48f
     };
 
     for (int i = 0; i < GreenGarden::BedCount; ++i) {

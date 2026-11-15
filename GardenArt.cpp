@@ -1,16 +1,27 @@
 //
 // Created by c4ner on 11/14/2026.
 //
-
 #include "GardenArt.h"
 
-#include <filesystem>
 #include <algorithm>
+#include <filesystem>
 #include <stdexcept>
 #include <string>
 
+namespace {
+    constexpr std::array<
+        std::array<const char*, 2>,
+        static_cast<std::size_t>(GardenArt::Button::Count)
+    > buttonFiles{{
+        {"water_idle.png", "water_hover.png"},
+        {"light_idle.png", "light_hover.png"},
+        {"endday_idle.png", "endday_hover.png"},
+        {"rules_idle.png", "rules_hover.png"}
+    }};
+}
+
 GardenArt::~GardenArt() {
-    const auto release = [](Texture2D texture) {
+    const auto release = [](const Texture2D &texture) {
         if (texture.id != 0) {
             UnloadTexture(texture);
         }
@@ -28,21 +39,38 @@ GardenArt::~GardenArt() {
             release(texture);
         }
     }
+
+    for (const auto& button : _buttons) {
+        for (const auto texture : button) {
+            release(texture);
+        }
+    }
 }
 
 void GardenArt::Load() {
-    if (_loaded) return;
+    if (_loaded) {
+        return;
+    }
 
-    const auto root = std::filesystem::path(GetApplicationDirectory()) / GardenDesign::folder;
+    const auto root =
+        std::filesystem::path(GetApplicationDirectory()) /
+        GardenDesign::folder;
 
-    const auto load = [&]( Texture2D& texture,const std::string& name) {
-        if (texture.id != 0) return;
+    const auto load = [&](
+        Texture2D& texture,
+        const std::string& name
+    ) {
+        if (texture.id != 0) {
+            return;
+        }
 
         const auto path = (root / name).string();
         texture = LoadTexture(path.c_str());
 
         if (texture.id == 0) {
-            throw std::runtime_error("Cannot load greenhouse image: " + path);
+            throw std::runtime_error(
+                "Cannot load greenhouse image: " + path
+            );
         }
 
         SetTextureFilter(texture, TEXTURE_FILTER_BILINEAR);
@@ -56,9 +84,25 @@ void GardenArt::Load() {
     }
 
     for (std::size_t color = 0; color < _flowers.size(); ++color) {
-        for (std::size_t stage = 0;stage < _flowers[color].size();++stage) {
-            load(_flowers[color][stage],std::string("flower_")+ GardenDesign::colors[color]+ std::to_string(GardenDesign::stages[stage])+ ".png");
-             }
+        for (
+            std::size_t stage = 0;
+            stage < _flowers[color].size();
+            ++stage
+        ) {
+            load(
+                _flowers[color][stage],
+                std::string("flower_") +
+                GardenDesign::colors[color] +
+                std::to_string(GardenDesign::stages[stage]) +
+                ".png"
+            );
+        }
+    }
+
+    for (std::size_t i = 0; i < _buttons.size(); ++i) {
+        for (std::size_t state = 0; state < 2; ++state) {
+            load(_buttons[i][state], buttonFiles[i][state]);
+        }
     }
 
     _loaded = true;
@@ -80,24 +124,72 @@ Texture2D GardenArt::Light(bool on) const {
     return _icons[on ? 2 : 3];
 }
 
-Texture2D GardenArt::Flower(std::size_t color, std::size_t stage) const {
+Texture2D GardenArt::Flower(
+    std::size_t color,
+    std::size_t stage
+) const {
     return _flowers.at(color).at(stage);
 }
 
-void GardenArt::DrawFill(Texture2D texture, Rectangle bounds) {
-    if (texture.id == 0) return;
-
-    DrawTexturePro(texture,{0, 0,static_cast<float>(texture.width),static_cast<float>(texture.height)},bounds,{0, 0},0.0f,WHITE);
-
+Texture2D GardenArt::GetButton(
+    Button button,
+    bool hovered
+) const {
+    return _buttons.at(
+        static_cast<std::size_t>(button)
+    ).at(hovered ? 1 : 0);
 }
 
-void GardenArt::DrawFit(Texture2D texture, Rectangle bounds) {
-    if (texture.id == 0) return;
+Rectangle GardenArt::Fit(
+    Texture2D texture,
+    Rectangle bounds
+) {
+    if (texture.width <= 0 || texture.height <= 0) {
+        return bounds;
+    }
 
-    const float scale = std::min(bounds.width / texture.width,bounds.height / texture.height);
+    const float scale = std::min(
+        bounds.width / texture.width,
+        bounds.height / texture.height
+    );
 
     const float width = texture.width * scale;
     const float height = texture.height * scale;
 
-    DrawFill(texture, {bounds.x + (bounds.width - width) * 0.5f,bounds.y + (bounds.height - height) * 0.5f,width,height});
+    return {
+        bounds.x + (bounds.width - width) * 0.5f,
+        bounds.y + (bounds.height - height) * 0.5f,
+        width,
+        height
+    };
+}
+
+void GardenArt::DrawFill(
+    Texture2D texture,
+    Rectangle bounds
+) {
+    if (texture.id == 0) {
+        return;
+    }
+
+    DrawTexturePro(
+        texture,
+        {
+            0.0f,
+            0.0f,
+            static_cast<float>(texture.width),
+            static_cast<float>(texture.height)
+        },
+        bounds,
+        {0.0f, 0.0f},
+        0.0f,
+        WHITE
+    );
+}
+
+void GardenArt::DrawFit(
+    Texture2D texture,
+    Rectangle bounds
+) {
+    DrawFill(texture, Fit(texture, bounds));
 }
