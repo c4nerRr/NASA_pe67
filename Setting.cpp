@@ -4,6 +4,19 @@
 #include <string>
 #include "GameManager.h"
 #include "InputManager.h"
+#include <array>
+#include "FontManager.h"
+
+namespace {
+    constexpr std::array<const char*, 3> developerCredits{
+        "Lead Programmer: Shyrokopoias Veronika",
+        "Game Designer: Yasinska Yuliia",
+        "Artist: Kucheruk Liliia"
+    };
+
+    constexpr Color creditsTitleColor{218, 191, 112, 255};
+    constexpr Color creditsTextColor{177, 181, 204, 255};
+}
 
 Setting::Setting() = default;
 
@@ -119,4 +132,27 @@ void Setting::Draw() const
 
     Color backTint = CheckCollisionPointRec(GetMousePosition(), btnBackRec) ? GRAY : WHITE;
     DrawTexturePro(btnBackTexture, { 0, 0, (float)btnBackTexture.width, (float)btnBackTexture.height }, btnBackRec, { 0, 0 }, 0.0f, backTint);
+
+    DrawCredits();
+}
+
+void Setting::DrawCredits() const {
+    const float centerX = panelRec.x + panelRec.width * 0.5f;
+    float fontSize = panelRec.width * 0.04f;
+
+    for (const char* text : developerCredits) {
+        const float width = FontManager::Measure(text, fontSize).x;
+        if (width > panelRec.width) fontSize *= panelRec.width / width;
+    }
+
+    const float lineHeight = fontSize * 1.5f;
+    float y = btnApplyRec.y + btnApplyRec.height * 1.4f;
+
+    FontManager::DrawCentered("DEVELOPERS", centerX, y, fontSize, creditsTitleColor);
+    y += lineHeight * 1.25f;
+
+    for (const char* text : developerCredits) {
+        FontManager::DrawCentered(text, centerX, y, fontSize, creditsTextColor);
+        y += lineHeight;
+    }
 }

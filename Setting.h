@@ -34,6 +34,8 @@ public:
     void OnEnter() override;
     void Update(float deltaTime) override;
     void Draw() const override;
+
+    void DrawCredits() const;
 };
 
 
