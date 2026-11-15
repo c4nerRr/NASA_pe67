@@ -70,18 +70,18 @@ void Init::Run() {
 
             while (!WindowShouldClose() && !game.ShouldQuit()) {
                 _profiler.BeginFrame();
-                ProfilerTIME::ScopeMarker fullFrame("FullFrame", _profiler);
+                //ProfilerTIME::ScopeMarker fullFrame("FullFrame", _profiler);
 
                 const float dt = std::min(GetFrameTime(), maxDeltaTime);
 
                 {
-                    ProfilerTIME::ScopeMarker upd("Update", _profiler);
+                    //ProfilerTIME::ScopeMarker upd("Update", _profiler);
                     AudioManager::Instance().Update();
                     game.Update(dt);
                 }
 
                 {
-                    ProfilerTIME::ScopeMarker draw("RenderCPU", _profiler);
+                    //ProfilerTIME::ScopeMarker draw("RenderCPU", _profiler);
 
                     runTime += dt;
                     const float resolution[3] = { (float)GetScreenWidth(), (float)GetScreenHeight(), 1.0f };
@@ -103,11 +103,11 @@ void Init::Run() {
                 }
 
                 if (game.GetCurrentState() != GameState::Game3) {
-                    _profiler.DrawZapis();
+                    //_profiler.DrawZapis();
                 }
 
                 {
-                    ProfilerTIME::ScopeMarker present("EndDrawing/Wait", _profiler);
+                    //ProfilerTIME::ScopeMarker present("EndDrawing/Wait", _profiler);
                     EndDrawing();
                 }
             }

@@ -76,10 +76,8 @@ void Game3::BuildLayout() {
         Rectangle{w * 0.67f, h * 0.46f,w * 0.20f, h * 0.24f}
     };
 
-    _layout.switchPower = RadiationArt::Fit(_art.Switch(), { w * 0.40f, h * 0.82f,w * 0.20f, h * 0.07f }
-    );
-    _layout.help = RadiationArt::Fit(_art.Rules(), { w * 0.79f, h * 0.82f,w * 0.10f, h * 0.07f }
-    );
+    _layout.switchPower = RadiationArt::Fit(_art.Switch(), { w * 0.40f, h * 0.74f, w * 0.20f, h * 0.07f });
+    _layout.help = RadiationArt::Fit(_art.Rules(), { w * 0.79f, h * 0.74f, w * 0.10f, h * 0.07f });
 }
 
 void Game3::ShowTheory() {
@@ -197,7 +195,6 @@ void Game3::ChangeThreat() {
         _base.ThreatenedModule()
         );
 
-    // Смещение 1 или 2 гарантирует другое здание.
     const int offset = GetRandomValue(
         1,
         RadiationBase::ModuleCount - 1
@@ -336,16 +333,40 @@ void Game3::DrawHUD() const {
 
     const Rectangle statusBounds{ w * 0.22f, h * 0.275f,w * 0.56f, h * 0.035f };
 
+    const auto drawTimer = [&](const char* text, const char* widthRef, int size, Color color) {
+        const float padX = 18.0f * s;
+        const float padY = 8.0f * s;
+        const float textW = static_cast<float>(MeasureText(widthRef, size));
+
+        const Rectangle plate{
+            timerBounds.x + (timerBounds.width - textW) * 0.5f - padX,
+            timerBounds.y + (timerBounds.height - size) * 0.5f - padY,
+            textW + padX * 2.0f,
+            size + padY * 2.0f
+        };
+
+        DrawRectangleRounded(plate, 0.4f, 8, Fade(BLACK, 0.45f));
+        CenteredText(text, timerBounds, size, color);
+    };
+
     if (_phase == Phase::Preparation) {
         const int secondsLeft = static_cast<int>(std::ceil(PreparationDuration - _preparationElapsed));
 
-        CenteredText(TextFormat("STORM IN: %02d", secondsLeft), timerBounds, FontSize(32, s), TargetLocked() ? MAROON : DARKGRAY);
+        drawTimer(
+            TextFormat("STORM IN: %02d", secondsLeft),
+            "STORM IN: 00",
+            FontSize(32, s),
+            TargetLocked() ? Color{ 255, 110, 90, 255 } : WHITE
+        );
+
         const char* status = TargetLocked() ? "TARGET LOCKED - CHECK YOUR SHIELD" : _preparationElapsed < FirstThreatChange ? "PREPARE - WATCH THE GREEN SYMBOL" : "FORECAST CHANGING - WATCH THE GREEN SYMBOL";
 
         CenteredText(status, statusBounds, FontSize(22, s), TargetLocked() ? ORANGE : SKYBLUE);
     }
     else {
-        CenteredText(_phase == Phase::Storm ? "STORM ACTIVE" : "ATTEMPT ENDED", timerBounds, FontSize(28, s), DARKGRAY);
+        const char* text = _phase == Phase::Storm ? "STORM ACTIVE" : "ATTEMPT ENDED";
+
+        drawTimer(text, text, FontSize(28, s), WHITE);
     }
 }
 
@@ -611,8 +632,7 @@ void Game3::Draw() const {
     DrawHUD();
     DrawModules();
 
-    CenteredText("GREEN SYMBOL: PRIORITY MODULE    GOLD BOLT: POWER", { w * 0.10f, h * 0.77f, w * 0.80f, h * 0.035f }, FontSize(20, s), LIGHTGRAY);
-
+    CenteredText("GREEN SYMBOL: PRIORITY MODULE    GOLD BOLT: POWER", { w * 0.10f, h * 0.82f, w * 0.80f, h * 0.035f }, FontSize(20, s), LIGHTGRAY);
     const bool canInteract = _phase == Phase::Preparation;
 
     ImageButton(_art.Switch(), _layout.switchPower, canInteract);

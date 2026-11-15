@@ -178,22 +178,22 @@ void Game4::BuildLayout() {
         std::min(w / 1920.0f, h / 1080.0f);
 
     _layout.water = {
-        w * 0.37f, h * 0.19f,
+        w * 0.37f, h * 0.215f,
         w * 0.12f, h * 0.065f
     };
 
     _layout.light = {
-        w * 0.51f, h * 0.19f,
+        w * 0.51f, h * 0.215f,
         w * 0.12f, h * 0.065f
     };
 
     _layout.help = {
-        w * 0.81f, h * 0.19f,
-        w * 0.09f, h * 0.065f
+        w * 0.83f, h * 0.2225f,
+        w * 0.07f, h * 0.05f
     };
 
     _layout.nextDay = {
-        w * 0.39f, h * 0.84f,
+        w * 0.39f, h * 0.80f,
         w * 0.22f, h * 0.07f
     };
 

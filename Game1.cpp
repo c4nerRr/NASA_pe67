@@ -50,7 +50,7 @@ void Game1::UpdateLayout() {
         _plusBtns[i] = { _sliderRects[i].x + sliderWidth + 16 * s,y - 3 * s,34 * s,34 * s };
     }
 
-    _actionBtn = { sw * 0.5f - 200 * s,_frame.y + _frame.height - 88 * s,400 * s,52 * s };
+    _actionBtn = { sw * 0.5f - 200 * s,_frame.y + _frame.height - 150 * s,400 * s,52 * s };
 
     _secondaryBtn = _actionBtn;
     _secondaryBtn.y -= 72 * s;

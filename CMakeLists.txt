@@ -86,6 +86,8 @@ add_executable(NASA
         PauseArt.cpp
         PauseArt.h
         DialogueArt.cpp
+        MissionArt.cpp
+        MissionArt.h
 )
 
 add_custom_target(NASA_assets ALL

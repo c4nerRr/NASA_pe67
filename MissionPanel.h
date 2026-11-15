@@ -7,17 +7,21 @@
 #include <vector>
 
 #include "Mission.h"
+#include "MissionArt.h"
 #include "raylib.h"
 
 struct RestorationProgress {
     std::size_t repaired = 0;
     std::size_t total = 0;
 
-    [[nodiscard]] bool Ready() const {return total > 0 && repaired == total;}
+    [[nodiscard]] bool Ready() const;
 };
 
 class MissionPanel {
 public:
+    MissionPanel();
+    ~MissionPanel();
+
     enum class Action {
         None,
         Talk,
@@ -55,7 +59,11 @@ private:
         float scale = 1.0f;
     };
 
+    MissionArt _art;
+
     [[nodiscard]] Layout GetLayout(std::size_t systemCount) const;
+
+    void DrawButton(Rectangle bounds,const char* label,float scale,bool interactive = true) const;
 
     void DrawConfirmation(const Mission& mission,const Layout& layout) const;
 };
