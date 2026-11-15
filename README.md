@@ -1,40 +1,84 @@
-# NASA_pe67
-Catonautics
+<h1 align="center">
+  CATONAUTICS
+</h1>
 
-Catonautics is an educational collection of 4 mini-games developed in C++ using the Raylib library. Designed specifically for children aged 7–12, the game introduces young players to the fundamentals of managing and operating a lunar base through fun, interactive gameplay.
+<div align="center">
+  <strong>Lunar Base Educational Mini-Games</strong><br>
+  🎮🚀🌱
+</div>
 
-🎮 Mini-Games Overview
+<div align="center"> 
+  <a href="https://isocpp.org/">
+    <img src="https://img.shields.io/badge/C%2B%2B-00599C?logo=c%2B%2B&logoColor=fff">
+  </a>
+  <a>
+    <img src="https://img.shields.io/badge/Raylib-F5F5F5?logo=raylib&logoColor=000">
+  </a>
+  </br>This project is a collection of 4 mini-games developed in C++ using the Raylib library. It is designed for children aged 7–12 to introduce them to operations on a lunar base.
+</div>
 
-1. Energy Balance
+## Table of contents
 
-How to play: The player manages the power supply for the lunar base. Four critical systems are displayed on the screen (oxygen, heating, greenhouse, and lighting), each requiring a specific amount of energy. Using sliders, the player must properly distribute energy among them. The player wins by keeping the base running successfully for 5 cycles.
+* [Table of contents](#table-of-contents)
+* [Tech stack](#tech-stack)
+* [Prerequisites](#prerequisites)
+* [Project Mini-Games](#project-mini-games)
+* [Cloning the project](#cloning-the-project)
+* [Installation and setup](#installation-and-setup)
+* [Project structure](#project-structure)
 
-Goal: To teach the player the basics of resource allocation and energy management.
+## Tech stack
 
-2. Restoration of Life Support
+* C++
+* Raylib
+* CMake / Make (optional)
+* **Target Resolution:** 2550 x 1600 (Optimal for Version 1)
 
-How to play: The player manages the base's water circulation system. By clicking on individual pipes, the player rotates them by 90 degrees. The objective is to correctly connect the water source, the filter, and the clean water reservoir.
+## Prerequisites
 
-Goal: To demonstrate how a closed-loop water circulation and filtration system works.
+Before you begin, make sure you have installed:
+* **Git** — [download](https://git-scm.com/)
+* **C++ Compiler** (GCC, Clang, or MSVC supporting C++17)
+* **Raylib** — [installation guide](https://www.raylib.com/)
 
-3. Radiation Alarm
+## Project Mini-Games
 
-How to play: A sudden radiation storm hits the lunar base. The player must distribute limited emergency energy among various modules by pressing a "switch" button at the right strategic moments to toggle power between modules.
+1. **Energy Balance**
+   * *How to play:* The player manages the power supply for the lunar base. There are 4 systems on the screen, each requiring a specific amount of energy (oxygen, heating, greenhouse, and lighting). The player must distribute energy among these four systems using sliders. The player wins if they manage to keep the base running for 5 cycles.
+   * *Goal:* To teach the player how to allocate resources.
 
-Goal: To teach players that space radiation is dangerous and that protecting a base requires special materials, shelters, and careful energy budgeting.
+2. **Restoration of Life Support**
+   * *How to play:* The player manages water circulation on the base. By clicking on pipes, the player rotates them 90 degrees; the objective is to connect the water source, the filter, and the clean water reservoir.
+   * *Goal:* To demonstrate how a water circulation system works.
 
-4. Greenhouse on the Moon
+3. **Radiation Alarm**
+   * *How to play:* A radiation storm begins, and the player must distribute limited energy among various modules—pressing the "switch" button at the right time to toggle between modules.
+   * *Goal:* The player learns that space radiation can be dangerous to humans and that protecting the base requires special materials, shelters, and energy.
 
-How to play: The screen displays plant beds that require precise combinations of water, light, and time to grow. The player can water each bed individually and toggle lighting on or off across multiple growth cycles.
+4. **Greenhouse on the Moon**
+   * *How to play:* The screen displays plant beds, each requiring water, light, and time. The player can water each bed and toggle the lighting on or off for individual beds across several cycles.
+   * *Goal:* To explain and show how astronauts grow food.
 
-Goal: To explain and showcase how astronauts successfully cultivate food in extraterrestrial environments.
+## Cloning the project
 
-🛠️ Technologies Used
+* Run the following command in your console:
+```bash
+git clone https://github.com/c4nerRr/NASA_pe67/
+```
+* Then, navigate into the project folder:
+```bash
+cd catonautics
+```
 
-Language: C++
+## Installation and setup
 
-Graphics Library: Raylib
+1. **Compile and run (Example for Linux / GCC)**
+```bash
+g++ main.cpp -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -o catonautics
+./catonautics
+```
 
-📄 License
+## Project structure
 
-This project is open-source and available under the MIT License.
+* `main.cpp`: Main game entry point containing menu logic and mini-game switching.
+* `assets/`: Graphical and sound resources for the game.
