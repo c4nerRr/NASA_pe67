@@ -1,5 +1,5 @@
 <h1 align="center">
-  CATONAUTICS
+  CATANAUTICS
 </h1>
 
 <div align="center">
