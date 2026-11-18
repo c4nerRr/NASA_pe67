@@ -59,26 +59,13 @@ Before you begin, make sure you have installed:
    * *How to play:* The screen displays plant beds, each requiring water, light, and time. The player can water each bed and toggle the lighting on or off for individual beds across several cycles.
    * *Goal:* To explain and show how astronauts grow food.
 
-## Cloning the project
-
-* Run the following command in your console:
-```bash
-git clone https://github.com/c4nerRr/NASA_pe67/
-```
-* Then, navigate into the project folder:
-```bash
-cd catonautics
-```
-
 ## Installation and setup
 
-1. **Compile and run (Example for Linux / GCC)**
-```bash
-g++ main.cpp -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -o catonautics
-./catonautics
-```
+1. **Install and run (Windows 10/11 only)**
 
-## Project structure
+-> Download `NASA-v1.0.0.zip` from the Releases page
+-> Extract the archive
+-> Run the `.exe` inside the extracted folder
 
-* `main.cpp`: Main game entry point containing menu logic and mini-game switching.
-* `assets/`: Graphical and sound resources for the game.
+**P.S.** DO NOT move the `.exe` out of the folder. It needs the files next to it to work.
+
